@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">Editar Perfil</h2>
+
+<div class="card shadow-sm p-4">
+    <form method="POST">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" value="{{ user.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Telefone</label>
+            <input type="text" name="telefone" class="form-control" value="{{ user.telefone }}">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Endereço</label>
+            <input type="text" name="endereco" class="form-control" value="{{ user.endereco }}">
+        </div>
+
+        <button class="btn btn-primary w-100 mt-3">Salvar Alterações</button>
+
+    </form>
+</div>
+
+{% endblock %}
