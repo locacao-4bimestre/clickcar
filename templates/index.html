@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}ClickCar - Aluguel de Veículos{% endblock %}
+
+{% block content %}
+
+<!-- 🟢 HERO -->
+<div class="text-center p-5 rounded shadow-sm mb-4" 
+     style="background: linear-gradient(rgba(0,150,65,0.75), rgba(0,150,65,0.75)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200'); 
+            background-size: cover; background-position: center; color: white;">
+
+    <h1 class="fw-bold display-4">Alugue seu carro com praticidade</h1>
+    <p class="lead">Os melhores veículos, com o melhor preço e atendimento rápido.</p>
+
+    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning btn-lg mt-3 fw-bold">
+        Ver veículos disponíveis
+    </a>
+</div>
+
+<!-- 🟡 BUSCA RÁPIDA -->
+<div class="card shadow-sm p-4 mb-5">
+    <h4 class="fw-bold mb-3">Buscar veículos</h4>
+
+    <form method="GET" action="{{ url_for('main.listar_veiculos') }}">
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <input class="form-control" type="text" name="q" placeholder="Modelo, marca...">
+            </div>
+
+            <div class="col-md-3">
+                <input class="form-control" type="text" name="marca" placeholder="Marca">
+            </div>
+
+            <div class="col-md-3">
+                <input class="form-control" type="number" name="ano" placeholder="Ano">
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Buscar</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- 🟢 DESTAQUES -->
+<h3 class="fw-bold mb-3">Veículos em destaque</h3>
+
+<div class="row">
+    {% for v in veiculos[:4] %}
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm h-100">
+            
+            {% if v.fotos and v.fotos|length > 0 %}
+                <img src="{{ url_for('static', filename='uploads/' ~ v.fotos[0].filename) }}"
+                     class="card-img-top" style="height: 180px; object-fit: cover;">
+            {% else %}
+                <img src="https://via.placeholder.com/300x180?text=Sem+Foto" 
+                     class="card-img-top">
+            {% endif %}
+
+            <div class="card-body">
+                <h5 class="card-title">{{ v.modelo }}</h5>
+                <p class="text-muted mb-1">{{ v.marca }} - {{ v.ano }}</p>
+                <p class="fw-bold text-success">R$ {{ "%.2f"|format(v.preco_por_dia) }} / dia</p>
+
+                <a href="{{ url_for('main.ver_veiculo', id=v.id) }}" 
+                   class="btn btn-primary w-100">
+                    Ver detalhes
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
