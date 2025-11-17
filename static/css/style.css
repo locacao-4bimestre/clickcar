@@ -1,0 +1,28 @@
+/* FOOTER */
+.footer {
+    background: #222;
+    color: #eee;
+}
+
+.footer-link {
+    color: #ddd;
+    text-decoration: none;
+    display: block;
+    padding: 3px 0;
+}
+
+.footer-link:hover {
+    color: var(--yellow);
+    text-decoration: underline;
+}
+
+.social-icon {
+    font-size: 1.5rem;
+    color: var(--yellow);
+    transition: 0.2s;
+}
+
+.social-icon:hover {
+    color: white;
+    transform: scale(1.1);
+}
