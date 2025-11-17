@@ -111,3 +111,4 @@ O site ficará disponível em: `http://localhost:5000`
 ## 🏁 Licença
 
 Este projeto é de uso acadêmico e foi desenvolvido apenas para fins educacionais.
+>>>>>>> 2312b0b6aa5076ef18c4e023cee3f3a4a1968b3e
