@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Minha Área{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">Olá, {{ current_user.nome }} 👋</h2>
+
+<div class="row g-4">
+
+    <!-- CARD: Meu Perfil -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Meu Perfil</h5>
+                <p class="text-muted">Veja e atualize seus dados pessoais.</p>
+                <a href="{{ url_for('main.customer_profile') }}" class="btn btn-primary w-100">
+                    Acessar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD: Minhas Reservas -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Minhas Reservas</h5>
+                <p class="text-muted">Visualize seus veículos alugados.</p>
+                <a href="#" class="btn btn-secondary w-100 disabled">
+                    Em breve
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD: Alugar Veículo -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Alugar um Veículo</h5>
+                <p class="text-muted">Veja todos os carros disponíveis.</p>
+                <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning w-100">
+                    Ver veículos
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
