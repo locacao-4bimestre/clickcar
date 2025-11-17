@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Veículos cadastrados{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Veículos Cadastrados</h2>
+
+<a href="{{ url_for('main.admin_novo_veiculo') }}" class="btn btn-primary mb-3">+ Novo Veículo</a>
+
+<table class="table table-striped table-hover align-middle shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Foto</th>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Ano</th>
+            <th>Placa</th>
+            <th>Status</th>
+            <th>Preço/Dia</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for v in veiculos %}
+        <tr>
+            <td>{{ v.id }}</td>
+
+            <!-- FOTO PRINCIPAL (primeira da lista) -->
+            <td>
+                {% if v.fotos and v.fotos|length > 0 %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ v.fotos[0].filename) }}"
+                         class="img-thumbnail"
+                         style="width: 70px; height: auto;">
+                {% else %}
+                    <span class="text-muted">Sem foto</span>
+                {% endif %}
+            </td>
+
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.ano }}</td>
+            <td>{{ v.placa }}</td>
+
+            <td>
+                {% if v.status == 'disponivel' %}
+                    <span class="badge bg-success">Disponível</span>
+                {% else %}
+                    <span class="badge bg-danger">Indisponível</span>
+                {% endif %}
+            </td>
+
+            <td>R$ {{ "%.2f"|format(v.preco_por_dia) }}</td>
+
+            <td>
+                <a href="{{ url_for('main.admin_editar_veiculo', id=v.id) }}"
+                   class="btn btn-warning btn-sm">
+                    Editar
+                </a>
+
+                <a href="{{ url_for('main.admin_excluir_veiculo', id=v.id) }}"
+                   onclick="return confirm('Deseja realmente excluir este veículo?')"
+                   class="btn btn-danger btn-sm">
+                    Excluir
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

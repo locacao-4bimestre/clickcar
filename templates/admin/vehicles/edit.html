@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Editar Veículo{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Editar Veículo</h2>
+
+<form method="POST" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Modelo</label>
+            <input type="text" name="modelo" class="form-control" value="{{ veiculo.modelo }}" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Marca</label>
+            <input type="text" name="marca" class="form-control" value="{{ veiculo.marca }}" required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Ano</label>
+            <input type="number" name="ano" class="form-control" value="{{ veiculo.ano }}" required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Placa</label>
+            <input type="text" name="placa" class="form-control" value="{{ veiculo.placa }}">
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Cor</label>
+            <input type="text" name="cor" class="form-control" value="{{ veiculo.cor }}">
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Tipo</label>
+            <select name="tipo_id" class="form-control" required>
+                {% for t in tipos %}
+                <option value="{{ t.id }}" {% if t.id == veiculo.tipo_id %}selected{% endif %}>
+                    {{ t.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Preço por dia (R$)</label>
+            <input type="number" step="0.01" name="preco_por_dia" class="form-control"
+                   value="{{ veiculo.preco_por_dia }}" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+                <option value="disponivel" {% if veiculo.status == 'disponivel' %}selected{% endif %}>Disponível</option>
+                <option value="indisponivel" {% if veiculo.status == 'indisponivel' %}selected{% endif %}>Indisponível</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Localização</label>
+            <input type="text" name="localizacao" class="form-control" value="{{ veiculo.localizacao }}">
+        </div>
+
+        <!-- FOTOS ATUAIS -->
+        <div class="col-md-12 mb-4">
+            <label class="form-label fw-bold">Fotos atuais:</label>
+
+            {% if veiculo.fotos %}
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    {% for foto in veiculo.fotos %}
+                        <div class="text-center border p-2 rounded shadow-sm">
+
+                            <img src="{{ url_for('static', filename='uploads/' ~ foto.filename) }}"
+                                 width="150" class="img-thumbnail mb-2">
+
+                            <!-- BOTÃO EXCLUIR FOTO -->
+                            <a href="{{ url_for('main.admin_excluir_foto',
+                                                foto_id=foto.id,
+                                                veiculo_id=veiculo.id) }}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Excluir esta foto?')">
+                                Excluir
+                            </a>
+
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Nenhuma foto cadastrada.</p>
+            {% endif %}
+
+            <label class="form-label fw-bold mt-2">Adicionar novas fotos:</label>
+            <input type="file" name="fotos" multiple class="form-control" accept="image/*">
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary w-100 mt-3">Salvar Alterações</button>
+</form>
+
+{% endblock %}
