@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Tipo de Veículo{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Cadastrar Tipo de Veículo</h2>
+
+<form method="POST" class="bg-white p-4 rounded shadow-sm">
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Nome do Tipo</label>
+        <input type="text" name="nome" class="form-control" placeholder="Ex: SUV, Sedan, Hatch..." required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Descrição</label>
+        <textarea name="descricao" class="form-control" rows="3" placeholder="Descreva esse tipo de veículo"></textarea>
+    </div>
+
+    <button class="btn btn-primary w-100">Salvar</button>
+</form>
+
+{% endblock %}
+ 
