@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">Meu Perfil</h2>
+
+<div class="card shadow-sm p-4">
+
+    <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+            <p class="mb-1 text-muted">Nome</p>
+            <h5>{{ user.nome }}</h5>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <p class="mb-1 text-muted">Email</p>
+            <h5>{{ user.email }}</h5>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <p class="mb-1 text-muted">Telefone</p>
+            <h5>{{ user.telefone if user.telefone else "Não informado" }}</h5>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <p class="mb-1 text-muted">Endereço</p>
+            <h5>{{ user.endereco if user.endereco else "Não informado" }}</h5>
+        </div>
+    </div>
+
+    <a href="{{ url_for('main.customer_edit_profile') }}" class="btn btn-primary w-100 mt-3">
+        Editar Perfil
+    </a>
+</div>
+
+{% endblock %}
