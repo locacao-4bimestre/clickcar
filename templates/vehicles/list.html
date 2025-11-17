@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Veículos{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Veículos</h2>
+
+<form method="GET" class="d-flex gap-2 mb-4">
+    <input type="text" name="q" class="form-control" placeholder="Modelo ou marca">
+    <input type="text" name="marca" class="form-control" placeholder="Marca">
+    <input type="number" name="ano" class="form-control" placeholder="Ano">
+    <button class="btn btn-secondary">Filtrar</button>
+</form>
+
+<div class="row g-4">
+    {% for v in veiculos %}
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+
+            <!-- FOTO PRINCIPAL -->
+            {% if v.fotos and v.fotos|length > 0 %}
+                <img src="{{ url_for('static', filename='uploads/' ~ v.fotos[0].filename) }}"
+                     class="card-img-top rounded mb-3"
+                     style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="bg-light border rounded d-flex justify-content-center align-items-center mb-3"
+                     style="height:200px;">
+                    <span class="text-muted">Sem foto</span>
+                </div>
+            {% endif %}
+
+            <h5 class="fw-bold">{{ v.modelo }} ({{ v.ano }})</h5>
+            <p class="text-success fw-semibold">R$ {{ "%.2f"|format(v.preco_por_dia) }} / dia</p>
+
+            <a href="{{ url_for('main.ver_veiculo', id=v.id) }}" class="btn btn-success">Ver</a>        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
