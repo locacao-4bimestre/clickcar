@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Dúvidas Frequentes{% endblock %}
+
+{% block content %}
+
+<div class="bg-white p-4 p-md-5 rounded shadow-sm">
+    <h2 class="fw-bold mb-4 text-center text-success">Dúvidas Frequentes</h2>
+
+    <div class="accordion" id="faqAccordion">
+
+        <!-- 1 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+                    Como funciona o processo de locação?
+                </button>
+            </h2>
+            <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Você escolhe o veículo, envia seus dados, passa pela confirmação e retira o carro na data marcada.
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+                    Preciso deixar algum tipo de caução?
+                </button>
+            </h2>
+            <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Sim, um valor pré-autorizado no cartão de crédito.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+                    E se eu atrasar a devolução?
+                </button>
+            </h2>
+            <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    O valor adicional será calculado automaticamente com base no período excedente.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a4">
+                    A ClickCar oferece seguro?
+                </button>
+            </h2>
+            <div id="a4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Sim! Todos os veículos contam com proteção básica inclusa.
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a5">
+                    Posso cancelar minha reserva?
+                </button>
+            </h2>
+            <div id="a5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Sim, sem custo até 24 horas antes da retirada.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

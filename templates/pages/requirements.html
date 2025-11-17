@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Requisitos para Locação{% endblock %}
+
+{% block content %}
+
+<div class="bg-white p-4 p-md-5 rounded shadow-sm">
+    <h2 class="fw-bold mb-4 text-center text-success">Requisitos para Locação</h2>
+
+    <p class="text-muted text-center mb-4">
+        Antes de alugar um veículo na ClickCar, verifique se você atende aos requisitos abaixo:
+    </p>
+
+    <ul class="list-group list-group-flush mb-4">
+
+        <li class="list-group-item">
+            <strong>Idade mínima:</strong> 21 anos.
+        </li>
+
+        <li class="list-group-item">
+            <strong>CNH válida:</strong> Carteira de motorista válida há pelo menos 2 anos.
+        </li>
+
+        <li class="list-group-item">
+            <strong>Documento com foto:</strong> RG ou CNH no momento da retirada.
+        </li>
+
+        <li class="list-group-item">
+            <strong>Comprovante de residência:</strong> Atualizado (últimos 3 meses).
+        </li>
+
+        <li class="list-group-item">
+            <strong>Cartão de crédito:</strong> Em nome do titular da locação para garantia.
+        </li>
+
+        <li class="list-group-item">
+            <strong>Pagamento:</strong> Pode ser feito via cartão, PIX ou transferência.
+        </li>
+
+    </ul>
+
+    <div class="text-center">
+        <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-primary px-4">Ver veículos disponíveis</a>
+    </div>
+</div>
+
+{% endblock %}
