@@ -172,6 +172,31 @@ def listar_veiculos():
 # ===========================================================
 # ADMIN — CADASTRAR TIPO
 # ===========================================================
+
+@main.route("/admin/tipos")
+@login_required
+def admin_listar_tipos():
+    query = TipoVeiculo.query.all()
+    return render_template('admin/types/list.html', tipos=query)
+
+
+@main.route("/admin/tipos/delete/<int:id>")
+def delete_tipo(id):
+    print("******* delete")
+    if current_user.perfil.nome_perfil != 'Admin':
+        flash("Apenas administradores podem excluir tipos de veiculos.", "warning")
+        return redirect(url_for('main.admin_listar_tipos'))
+    try:
+        tipo = TipoVeiculo.query.get_or_404(id)
+        db.session.delete(tipo)
+        db.session.commit()
+        flash("Cliente removido!", "success")
+        return redirect(url_for('main.admin_listar_tipos'))
+    except Exception as E:
+        flash("Algum carro utiliza esse tipo, remova antes de remover a categoria", "error")
+        return redirect(url_for("main.admin_listar_tipos"))
+
+
 @main.route('/admin/tipos/novo', methods=['GET', 'POST'])
 @login_required
 def novo_tipo():
@@ -190,7 +215,30 @@ def novo_tipo():
         flash("Tipo cadastrado!", "success")
         return redirect(url_for('main.novo_tipo'))
 
-    return render_template('admin/new_type.html')
+    return render_template('admin/types/new_type.html')
+
+
+@main.route('/admin/tipos/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def admin_editar_tipo(id):
+    if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
+        flash("Acesso negado", "danger")
+        return redirect(url_for('main.index'))
+
+    tipo = TipoVeiculo.query.filter_by(id=id).first()
+    print(tipo)
+    if request.method == 'POST':
+        nome = request.form.get("nome")
+        desc = request.form.get("dec")
+        try:
+            tipo.nome = nome
+            tipo.desc = desc
+            db.session.commit()
+            flash("Veículo atualizado!", "success")
+            return redirect(url_for('main.admin_listar_tipos'))
+        except:
+            return redirect(url_for('main.admin_editar_tipo', id=id))
+    return render_template("admin/types/edit.html", tipo=tipo)
 
 
 # ===========================================================

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Cliente{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Editar Tipo</h2>
+
+<form method="POST" class="bg-white p-4 rounded shadow-sm">
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" value="{{ tipo.nome }}" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Descrição</label>
+            <input type="email" name="desc" class="form-control" value="{{ tipo.descricao }}" required>
+        </div>
+
+       
+
+    <button class="btn btn-primary w-100">Salvar Alterações</button>
+</form>
+
+{% endblock %}

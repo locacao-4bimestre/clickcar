@@ -1,3 +1,4 @@
+from controllers.controller import main
 from flask import Flask
 from config import Config
 from models.models import db, Perfil, Usuario
@@ -10,7 +11,7 @@ app.config.from_object(Config)
 
 # UPLOADS
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # EXTENSÕES
 db.init_app(app)
@@ -19,11 +20,12 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'main.login'
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
-from controllers.controller import main
+
 app.register_blueprint(main)
 
 if __name__ == '__main__':
