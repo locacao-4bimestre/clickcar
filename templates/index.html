@@ -152,6 +152,53 @@
     </form>
 </section>
 
+<!-- === BANNERS PROMOCIONAIS === -->
+<div class="container my-5">
+
+    <div class="row g-4">
+
+        <!-- Banner 1 -->
+        <div class="col-md-6">
+            <div class="promo-banner">
+                <img src="{{ url_for('static', filename='img/banner1.jpg') }}" alt="Promoção 1">
+            </div>
+        </div>
+
+        <!-- Banner 2 -->
+        <div class="col-md-6">
+            <div class="promo-banner">
+                <img src="{{ url_for('static', filename='img/banner2.jpg') }}" alt="Promoção 2">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .promo-banner {
+        background-color: #ffffff;     /* fundo branco ou neutro */
+        padding: 10px;                 /* espaço interno para evitar corte */
+        border-radius: 16px;
+        height: 250px;                 /* mantém proporcional */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .promo-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;           /* <<< MOSTRA A IMAGEM INTEIRA */
+        border-radius: 12px;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .promo-banner img:hover {
+        transform: scale(1.01);
+        box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    }
+</style>
 
 
 
