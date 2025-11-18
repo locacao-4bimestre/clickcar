@@ -10,6 +10,8 @@ main = Blueprint('main', __name__)
 # ===========================================================
 # ÁREA DO CLIENTE
 # ===========================================================
+
+
 @main.route('/customer')
 @login_required
 def customer_dashboard():
@@ -28,7 +30,7 @@ def customer_profile():
     return render_template('customer/profile.html', user=current_user)
 
 
-@main.route('/customer/profile/edit', methods=['GET','POST'])
+@main.route('/customer/profile/edit', methods=['GET', 'POST'])
 @login_required
 def customer_edit_profile():
     if current_user.perfil.nome_perfil != 'Cliente':
@@ -73,7 +75,7 @@ def faq():
 # ===========================================================
 # LOGIN
 # ===========================================================
-@main.route('/login', methods=['GET','POST'])
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -93,7 +95,8 @@ def login():
 
     return render_template('auth/login.html')
 
-@main.route('/register', methods=['GET','POST'])
+
+@main.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -169,7 +172,7 @@ def listar_veiculos():
 # ===========================================================
 # ADMIN — CADASTRAR TIPO
 # ===========================================================
-@main.route('/admin/tipos/novo', methods=['GET','POST'])
+@main.route('/admin/tipos/novo', methods=['GET', 'POST'])
 @login_required
 def novo_tipo():
     if current_user.perfil.nome_perfil != 'Admin':
@@ -206,6 +209,8 @@ def admin_listar_veiculos():
 # ===========================================================
 # VER VEÍCULO INDIVIDUAL
 # ===========================================================
+
+
 @main.route('/veiculos/<int:id>')
 def ver_veiculo(id):
     veiculo = Veiculo.query.get_or_404(id)
@@ -215,7 +220,7 @@ def ver_veiculo(id):
 # ===========================================================
 # ADMIN — NOVO VEÍCULO
 # ===========================================================
-@main.route('/admin/vehicles/new', methods=['GET','POST'])
+@main.route('/admin/vehicles/new', methods=['GET', 'POST'])
 @login_required
 def admin_novo_veiculo():
     if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
@@ -262,7 +267,7 @@ def admin_novo_veiculo():
 # ===========================================================
 # ADMIN — EDITAR VEÍCULO
 # ===========================================================
-@main.route('/admin/vehicles/edit/<int:id>', methods=['GET','POST'])
+@main.route('/admin/vehicles/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def admin_editar_veiculo(id):
     if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
@@ -357,7 +362,7 @@ def admin_listar_clientes():
 # ===========================================================
 # ADMIN — NOVO CLIENTE
 # ===========================================================
-@main.route('/admin/customers/new', methods=['GET','POST'])
+@main.route('/admin/customers/new', methods=['GET', 'POST'])
 @login_required
 def admin_novo_cliente():
     if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
@@ -384,7 +389,7 @@ def admin_novo_cliente():
 # ===========================================================
 # ADMIN — EDITAR CLIENTE
 # ===========================================================
-@main.route('/admin/customers/edit/<int:id>', methods=['GET','POST'])
+@main.route('/admin/customers/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def admin_editar_cliente(id):
     if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
@@ -423,3 +428,25 @@ def admin_excluir_cliente(id):
 
     flash("Cliente removido!", "success")
     return redirect(url_for('main.admin_listar_clientes'))
+
+
+@main.route('/newsletter', methods=['POST'])
+def newsletter():
+    email = request.form.get('email')
+
+    if not email:
+        flash("Digite um e-mail válido.", "warning")
+        return redirect(url_for('main.index'))
+
+    from models.models import Newsletter
+
+    if Newsletter.query.filter_by(email=email).first():
+        flash("Este e-mail já está cadastrado!", "info")
+        return redirect(url_for('main.index'))
+
+    novo = Newsletter(email=email)
+    db.session.add(novo)
+    db.session.commit()
+
+    flash("E-mail cadastrado com sucesso! ", "success")
+    return redirect(url_for('main.index'))

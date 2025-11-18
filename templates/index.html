@@ -73,5 +73,86 @@
     </div>
     {% endfor %}
 </div>
+<section class="mt-5">
+    <h2 class="fw-bold text-center mb-4">Vantagens de alugar um carro com a ClickCar</h2>
+
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-md-3">
+            <div class="benefit-card p-4 rounded-4">
+                <div class="icon-circle mb-3"><i class="bi bi-cash-stack"></i></div>
+                <h5 class="fw-bold">Melhores preços e descontos</h5>
+                <p>Ofertas exclusivas nas melhores locadoras do Brasil.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="benefit-card p-4 rounded-4">
+                <div class="icon-circle mb-3"><i class="bi bi-coin"></i></div>
+                <h5 class="fw-bold">Reservas com cashback</h5>
+                <p>Ganhe até 10% de volta para o próximo aluguel.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="benefit-card p-4 rounded-4">
+                <div class="icon-circle mb-3"><i class="bi bi-globe-americas"></i></div>
+                <h5 class="fw-bold">Alugue no mundo todo</h5>
+                <p>São milhares de opções em 7.000 cidades e 40.000 pontos.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="benefit-card p-4 rounded-4">
+                <div class="icon-circle mb-3"><i class="bi bi-headset"></i></div>
+                <h5 class="fw-bold">Atendimento de excelência</h5>
+                <p>Suporte rápido e humanizado, sempre em português.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+<section class="mt-5 mb-5">
+    <h2 class="fw-bold text-center mb-4">O que nossos clientes dizem</h2>
+
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-md-4">
+            <div class="testimonial-card p-4 rounded-4">
+                <p>"A ClickCar salvou minha viagem! Carro impecável e atendimento perfeito."</p>
+                <h6 class="fw-bold mt-3">— Mariana S.</h6>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="testimonial-card p-4 rounded-4">
+                <p>"Fácil, rápido e barato. Melhor locadora que já usei."</p>
+                <h6 class="fw-bold mt-3">— Felipe R.</h6>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="testimonial-card p-4 rounded-4">
+                <p>"Equipe sensacional! Me orientaram na escolha do carro perfeito."</p>
+                <h6 class="fw-bold mt-3">— Camila T.</h6>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="newsletter-section mt-5 p-5 rounded-4 text-center">
+    <h3 class="fw-bold text-white">Receba ofertas e novidades</h3>
+    <p class="text-light">Cadastre seu e-mail e receba promoções exclusivas da ClickCar.</p>
+
+    <form action="{{ url_for('main.newsletter') }}" method="POST" class="d-flex justify-content-center mt-3">
+        <input type="email" name="email" class="form-control w-50 me-2" placeholder="Digite seu e-mail" required>
+        <button class="btn btn-warning fw-bold">Cadastrar</button>
+    </form>
+</section>
+
+
+
 
 {% endblock %}
