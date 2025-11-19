@@ -1,11 +1,74 @@
+from datetime import datetime, timedelta
 import os
+import secrets
+from flask_mail import Message
 from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app as app
-from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto
+from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
+from sqlalchemy.orm import sessionmaker, scoped_session
+from app import engine
+
 
 main = Blueprint('main', __name__)
+SessionLocal = scoped_session(sessionmaker(bind=engine))
+# ===================================
+# Funções utilitárias
+# ===================================
+
+
+def send_email_with_id(usuario_id, subject, body):
+    db = SessionLocal()
+    usuario = db.query(Usuario).filter_by(id=usuario_id).first()
+    msg = Message(
+        subject=subject,
+        recipients=[usuario.email],  # para quem vai
+        body=body
+    )
+    main.send(msg)
+
+
+def verifyToken(token1, token2):
+    print(token1, token2)
+    if token1 == token2:
+        return True
+    return False
+
+
+def create_token(usuario_id):
+    print("Criando")
+    db = SessionLocal()
+    try:
+        token = secrets.token_urlsafe(32)
+        database_token = Token(
+            token=token,
+            criado_em=datetime.now(),
+            usuario_id=usuario_id
+        )
+        print("Criando ...")
+        send_email_with_id(
+            usuario_id, subject="Token - ClickCar", body=database_token.token)
+        db.add(database_token)
+        db.commit()
+    except:
+        print("Não foi possível gerar token")
+
+
+def findLastToken(usuario_id):
+    db = SessionLocal()
+    token = db.query(Token).filter_by(usuario_id=usuario_id).order_by(
+        Token.data_criacao.desc()).first()
+    return token
+
+
+def isTokenExpired(token: Token):
+    token_time = token.data_criacao
+    if datetime.now() < (token_time + timedelta(minutes=3)):
+        return False
+    else:
+        return True
+
 
 # ===========================================================
 # ÁREA DO CLIENTE

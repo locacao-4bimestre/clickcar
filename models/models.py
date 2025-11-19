@@ -18,6 +18,7 @@ class Usuario(UserMixin, db.Model):
     nome = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(200), nullable=False)
+
     perfil_id = db.Column(db.Integer, db.ForeignKey(
         'perfis.id'), nullable=False)
     telefone = db.Column(db.String(20))
@@ -26,6 +27,8 @@ class Usuario(UserMixin, db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     email_verificado = db.Column(db.Boolean, default=False)
     codigo_verificacao = db.Column(db.String(6))
+
+    tokens = db.relationship('Token', backref='usuario', lazy=True)
 
     def get_id(self):
         return str(self.id)
@@ -38,6 +41,15 @@ class TipoVeiculo(db.Model):
     descricao = db.Column(db.Text)
 
     veiculos = db.relationship('Veiculo', backref='tipo', lazy=True)
+
+
+class Token(db.Model):
+    __tableename__ = 'token'
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(2000), nullable=False)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    usuario_id = db.Column(db.Integer, db.ForeignKey(
+        'usuario.id'), nullable=False)
 
 
 class Veiculo(db.Model):
