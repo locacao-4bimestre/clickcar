@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Gerenciar usuário</h2>
+
+<a href="{{ url_for('main.admin_novo_cliente') }}" class="btn btn-primary mb-3">+ Novo Cliente</a>
+
+<table class="table table-hover shadow-sm bg-white">
+    <thead class="table-success">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>CPF</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.telefone }}</td>
+            <td>{{ u.cpf }}</td>
+            <td>
+                <a href="{{ url_for('main.login') }}" class="btn btn-warning btn-sm">Editar</a>
+                <a href="{{ url_for('main.admin_excluir_usuario', user_id=u.id) }}" 
+                   onclick="return confirm('Excluir cliente?')" 
+                   class="btn btn-danger btn-sm">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

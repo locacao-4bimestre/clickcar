@@ -28,7 +28,8 @@ class Usuario(UserMixin, db.Model):
     email_verificado = db.Column(db.Boolean, default=False)
     codigo_verificacao = db.Column(db.String(6))
 
-    tokens = db.relationship('Token', backref='usuario', lazy=True)
+    tokens = db.relationship('Token', backref='usuarios',
+                             lazy=True, cascade="all, delete-orphan")
 
     def get_id(self):
         return str(self.id)
@@ -49,7 +50,7 @@ class Token(db.Model):
     token = db.Column(db.String(2000), nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     usuario_id = db.Column(db.Integer, db.ForeignKey(
-        'usuario.id'), nullable=False)
+        'usuarios.id', ondelete="CASCADE"), nullable=False)
 
 
 class Veiculo(db.Model):

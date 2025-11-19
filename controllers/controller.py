@@ -2,14 +2,25 @@ from datetime import datetime, timedelta
 import os
 import secrets
 from flask_mail import Message
+from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app as app
 from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import sessionmaker, scoped_session
-from app import engine
+from extensions import mail, basedir
 
+
+database_url = os.environ.get('DATABASE_URL') or \
+    'sqlite:///' + os.path.join(basedir, 'locacao.db')
+try:
+    engine = create_engine(database_url, echo=False, future=True)
+    with engine.connect() as conn:
+        result = conn.execute(text('SELECT 1'))
+        print('✅ Conexão SQLite bem-sucedida!')
+except Exception as e:
+    print('Não foi possivel conectar ao sqlite:', e)
 
 main = Blueprint('main', __name__)
 SessionLocal = scoped_session(sessionmaker(bind=engine))
@@ -18,15 +29,15 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 
 
-def send_email_with_id(usuario_id, subject, body):
+def send_email_with_id(usuario_id, subject, html):
     db = SessionLocal()
     usuario = db.query(Usuario).filter_by(id=usuario_id).first()
     msg = Message(
         subject=subject,
         recipients=[usuario.email],  # para quem vai
-        body=body
+        html=html
     )
-    main.send(msg)
+    mail.send(msg)
 
 
 def verifyToken(token1, token2):
@@ -48,22 +59,23 @@ def create_token(usuario_id):
         )
         print("Criando ...")
         send_email_with_id(
-            usuario_id, subject="Token - ClickCar", body=database_token.token)
+            usuario_id, subject="Token - ClickCar", html=f"<p align='center' style='font-size: 15px;'> Seu token de verificação é: </p> <br> <p style='font-size: 20px;'>{database_token.token} </p> <br> <p style='font-size: 10px;'>* Esse email é automático, por favor não o responda</p>")
+
         db.add(database_token)
         db.commit()
-    except:
-        print("Não foi possível gerar token")
+    except Exception as e:
+        print("Não foi possível gerar token", e)
 
 
 def findLastToken(usuario_id):
     db = SessionLocal()
     token = db.query(Token).filter_by(usuario_id=usuario_id).order_by(
-        Token.data_criacao.desc()).first()
+        Token.criado_em.desc()).first()
     return token
 
 
 def isTokenExpired(token: Token):
-    token_time = token.data_criacao
+    token_time = token.criado_em
     if datetime.now() < (token_time + timedelta(minutes=3)):
         return False
     else:
@@ -184,17 +196,53 @@ def register():
             endereco=endereco,
             senha_hash=generate_password_hash(senha),
             perfil_id=perfil_cliente.id,
-            email_verificado=True,      # como não tem verificação por email
+            email_verificado=False,      # como não tem verificação por email
             codigo_verificacao=None
         )
 
         db.session.add(novo)
         db.session.commit()
-
+        user_id = novo.id
+        create_token(user_id)
         flash("Conta criada com sucesso!", "success")
-        return redirect(url_for('main.login'))
+        print("indo para a verificacao... ")
+        return redirect(url_for('main.verify_user_email', user_id=user_id))
 
     return render_template('auth/register.html')
+
+
+@main.route("/email-test")
+def email_test():
+    msg = Message(subject="Test!", recipients=[
+                  'joaopauloqueirozcosta@gmail.com'], body="ClickCar")
+    mail.send(msg)
+    return "OK"
+
+
+@main.route("/verify/<int:user_id>", methods=["POST", "GET"])
+def verify_user_email(user_id):
+    method = request.method
+    if method == "POST":
+        form = request.form
+        form_token = form.get("token")
+        print("Token recebido: ", form_token)
+        last_token = findLastToken(user_id)
+        if (verifyToken(form_token, last_token.token)):
+            print(isTokenExpired(last_token))
+            if (not isTokenExpired(last_token)):
+                db = SessionLocal()
+                usuario = db.query(Usuario).filter_by(id=user_id).first()
+                usuario.email_verificado = True
+                db.commit()
+                flash("Conta verificada! Faça o login para continuar ", "error")
+                return redirect(url_for("main.login"))
+            else:
+                flash("Token expirado! Enviando outro...", "error")
+                create_token(user_id)
+                return redirect(url_for("main.verify_user_email", user_id=user_id))
+        flash("Token inválido", "error")
+        return redirect(url_for("main.verify_user_email", user_id=user_id))
+    return render_template('auth/auth_login.html')
 
 
 @main.route('/logout')
@@ -204,9 +252,34 @@ def logout():
     return redirect(url_for('main.index'))
 
 
+# =====================
+# Usuarios
+# ===============
+
+@main.route("/admin/usuario")
+def admin_usuario_page():
+    db = SessionLocal()
+    usuarios = db.query(Usuario).all()
+    return render_template("admin/users/list.html", usuarios=usuarios)
+
+
+@main.route("/excluir_usuario/<int:user_id>")
+def admin_excluir_usuario(user_id):
+    db = SessionLocal()
+    usuario = db.query(Usuario).filter_by(id=user_id).first()
+    if not usuario:
+        return redirect(url_for("main.admin_excluir_usuario", user_id=user_id))
+    else:
+        db.delete(usuario)
+        db.commit()
+        return redirect(url_for("main.login"))
+
+
 # ===========================================================
 # LISTAR VEÍCULOS
 # ===========================================================
+
+
 @main.route('/veiculos')
 def listar_veiculos():
     q = request.args.get('q', type=str)

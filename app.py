@@ -10,12 +10,11 @@ from werkzeug.security import generate_password_hash
 import cloudinary
 import difflib
 from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Mail, Message
+from extensions import mail
 from config import basedir
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -24,22 +23,15 @@ app.config['MAIL_USERNAME'] = 'joaopauloqueirozcosta@gmail.com'
 app.config['MAIL_PASSWORD'] = 'pwgm sxse ixpu cfjs'
 app.config['MAIL_DEFAULT_SENDER'] = (
     'ClickCar', 'joaopauloqueirozcosta@gmail.com')
-mail = Mail(app)
+
 serializer = URLSafeTimedSerializer("secret-key-serializer")
 
-database_url = os.environ.get('DATABASE_URL') or \
-    'sqlite:///' + os.path.join(basedir, 'locacao.db')
-try:
-    engine = create_engine(database_url, echo=False, future=True)
-    with engine.connect() as conn:
-        result = conn.execute(text('SELECT 1'))
-        print('✅ Conexão MySQL bem-sucedida!')
-except Exception as e:
-    print('Não foi possivel conectar ao sqlite:', e)
 
 # UPLOADS
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+mail.init_app(app)
 
 # EXTENSÕES
 db.init_app(app)

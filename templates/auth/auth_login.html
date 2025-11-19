@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+  <div class="mb-3">
+    <label>Token</label>
+    <input class="form-control" name="token" type="password" required>
+  </div>
+ 
+  <button class="btn btn-primary" type="submit">Entrar</button>
+</form>
+{% endblock %}
