@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar reserva{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Editar reserva</h2>
+
+<form method="POST" class="bg-white p-4 rounded shadow-sm">
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">User ID</label>
+            <input type="text" name="user" class="form-control" value="{{ reserva.user_id }}" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Veiculo ID</label>
+            <input type="email" name="veiculo" class="form-control" value="{{ reserva.veiculo_id }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Data início</label>
+            <input class="form-control" type="date" value="{{ reserva.data_inicio }}" name="data_inicio" id="">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Data fim</label>
+            <input type="date" name="data_fim" value="{{ reserva.data_fim }}" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Valor diaria</label>
+            <p class="form-control">{{reserva.valor_total}}</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-control" name="status" id="">
+               
+                {% for s in statuses %}
+                    <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
+        
+            </select>
+        </div>
+
+    
+    </div>
+
+    <button class="btn btn-primary w-100">Salvar Alterações</button>
+</form>
+
+{% endblock %}

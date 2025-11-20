@@ -30,6 +30,12 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 
 
+def recalc_valor_diaria(data_inicio: date, data_fim: date, veiculo_id):
+    db = SessionLocal()
+    veiculo = db.query(Veiculo).filter_by(id=veiculo_id).first()
+    return calc_valor_total(data_inicio, data_fim, veiculo.preco_por_dia)
+
+
 def calc_valor_total(data_inicio: date, data_fim: date, diaria):
     periodo = (data_fim - data_inicio).days + 1
     valor_total = periodo * diaria
@@ -322,6 +328,34 @@ def listar_reservas():
     db = SessionLocal()
     reservas = db.query(Reserva).all()
     return render_template("admin/rentals/list.html", reservas=reservas)
+
+
+@main.route("/admin/reservas/edit/<int:id>", methods=["POST", "GET"])
+def edit_reserva(id):
+    db = SessionLocal()
+    statuses = ["pendente", "confirmada", "cancelada"]
+    reserva = db.query(Reserva).filter_by(id=id).first()
+    if not reserva:
+        flash("Esta reserva não existe ", "error")
+        return redirect(url_for("main.listar_reservas"))
+    if request.method == "POST":
+        form = request.form
+        user_id = form.get("user")
+        veiculo_id = form.get("veiculo")
+        data_inicio = form.get("data_inicio")
+        data_fim = form.get("data_fim")
+        status = form.get("status")
+        reserva.user_id = user_id
+        reserva.veiculo_id = veiculo_id
+        reserva.data_inicio = data_inicio
+        reserva.data_fim = data_fim
+        reserva.status = status
+        reserva.valor_total = recalc_valor_diaria(
+            data_inicio, data_fim, veiculo_id)
+        db.commit()
+        flash("Reserva editada! ")
+        return redirect(url_for("main.edit_reserva", id=id))
+    return render_template("admin/rentals/edit.html", reserva=reserva, statuses=statuses)
 
 # ===========================================================
 # LISTAR VEÍCULOS
