@@ -45,7 +45,7 @@ class TipoVeiculo(db.Model):
 
 
 class Token(db.Model):
-    __tableename__ = 'token'
+    __tablename__ = 'token'
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(2000), nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
