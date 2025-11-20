@@ -31,17 +31,19 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # Funções utilitárias
 # ===================================
 
+
 def allButWhiteSpace():
     all = [char for char in string.printable if char not in string.whitespace]
     return all
 
+
 def generate_token(size: int):
     allbutwhite = allButWhiteSpace()
     token = ""
-    for i in range(0,size):
-        randomChar = allbutwhite[random.randint(0,len(allbutwhite))]
+    for i in range(0, size):
+        randomChar = allbutwhite[random.randint(0, len(allbutwhite))]
         token += randomChar
-        
+
     return token
 
 
@@ -87,7 +89,7 @@ def create_token(usuario_id):
         )
         print("Criando ...")
         send_email_with_id(
-            usuario_id, subject="Token - ClickCar", html=f"<p align='center' style='font-size: 15px;'> Seu token de verificação é: </p> <br> <p style='font-size: 20px;'>{database_token.token} </p> <br> <p style='font-size: 10px;'>* Esse email é automático, por favor não o responda</p>")
+            usuario_id, subject="Token - ClickCar", html=f"<p align='center' style='font-size: 15px;'> Seu token de verificação é: </p> <br> <p align='center' style='font-size: 20px;'>{database_token.token} </p> <br> <p style='font-size: 10px;'>* Esse email é automático, por favor não o responda</p>")
 
         db.add(database_token)
         db.commit()
@@ -262,7 +264,7 @@ def verify_user_email(user_id):
                 usuario = db.query(Usuario).filter_by(id=user_id).first()
                 usuario.email_verificado = True
                 db.commit()
-                flash("Conta verificada! Faça o login para continuar ", "error")
+                flash("Conta verificada! Faça o login para continuar ", "success")
                 return redirect(url_for("main.login"))
             else:
                 flash("Token expirado! Enviando outro...", "error")
