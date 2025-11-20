@@ -281,6 +281,9 @@ def edit_user(user_id):
         telefone = form.get("telefone")
         cpf = form.get("cpf")
         endereco = form.get("endereco")
+        if db.query(Usuario).filter_by(email=email).first():
+            flash("Outro usuário possui este email ", "error")
+            return redirect(url_for("main.edit_user", user_id=user_id))
         usuario.nome = nome
         usuario.email = email
         usuario.perfil_id = perfil
