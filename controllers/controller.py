@@ -5,11 +5,12 @@ from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app as app
-from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token
+from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import sessionmaker, scoped_session
 from extensions import mail, basedir
+from datetime import date, datetime
 
 
 database_url = os.environ.get('DATABASE_URL') or \
@@ -27,6 +28,12 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 # Funções utilitárias
 # ===================================
+
+
+def calc_valor_total(data_inicio: date, data_fim: date, diaria):
+    periodo = (data_fim - data_inicio).days + 1
+    valor_total = periodo * diaria
+    return valor_total
 
 
 def send_email_with_id(usuario_id, subject, html):
@@ -308,6 +315,14 @@ def admin_excluir_usuario(user_id):
         return redirect(url_for("main.login"))
 
 
+# Reservas
+
+@main.route("/admin/reservas")
+def listar_reservas():
+    db = SessionLocal()
+    reservas = db.query(Reserva).all()
+    return render_template("admin/rentals/list.html", reservas=reservas)
+
 # ===========================================================
 # LISTAR VEÍCULOS
 # ===========================================================
@@ -428,9 +443,32 @@ def admin_listar_veiculos():
 # ===========================================================
 
 
-@main.route('/veiculos/<int:id>')
+@main.route('/veiculos/<int:id>', methods=["POST", "GET"])
 def ver_veiculo(id):
     veiculo = Veiculo.query.get_or_404(id)
+    if request.method == "POST":
+        print("POST")
+        db = SessionLocal()
+        form = request.form
+        if veiculo.status != "disponivel":
+            flash("Desculpe, esse veículo não está disponível")
+            return redirect(url_for("main.ver_veiculo", id=veiculo.id))
+        data_inicio = date.fromisoformat(form.get("data_inicio"))
+        data_fim = date.fromisoformat(form.get("data_fim"))
+        nova_reserva = Reserva(
+            user_id=11,
+            veiculo_id=veiculo.id,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            status="pendente",
+            valor_total=calc_valor_total(
+                data_inicio, data_fim, veiculo.preco_por_dia),
+            criado_em=datetime.now()
+        )
+        db.add(nova_reserva)
+        db.commit()
+        flash("Reserva está pendente! Confira em minhas reservas", "success")
+        return redirect(url_for("main.index"))
     return render_template('vehicles/view.html', veiculo=veiculo)
 
 
