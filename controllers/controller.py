@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 import os
+import string
+import random
 import secrets
 from flask_mail import Message
 from sqlalchemy import create_engine, text
@@ -28,6 +30,19 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 # Funções utilitárias
 # ===================================
+
+def allButWhiteSpace():
+    all = [char for char in string.printable if char not in string.whitespace]
+    return all
+
+def generate_token(size: int):
+    allbutwhite = allButWhiteSpace()
+    token = ""
+    for i in range(0,size):
+        randomChar = allbutwhite[random.randint(0,len(allbutwhite))]
+        token += randomChar
+        
+    return token
 
 
 def recalc_valor_diaria(data_inicio: date, data_fim: date, veiculo_id):
@@ -64,7 +79,7 @@ def create_token(usuario_id):
     print("Criando")
     db = SessionLocal()
     try:
-        token = secrets.token_urlsafe(32)
+        token = generate_token(6)
         database_token = Token(
             token=token,
             criado_em=datetime.now(),
