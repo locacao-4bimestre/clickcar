@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Clientes{% endblock %}
+{% block title %}Usuários{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold mb-4">Gerenciar usuário</h2>
+<h2 class="fw-bold mb-4">Gerenciar usuários</h2>
 
 <a href="{{ url_for('main.admin_novo_cliente') }}" class="btn btn-primary mb-3">+ Novo Cliente</a>
 
@@ -28,7 +28,7 @@
             <td>{{ u.telefone }}</td>
             <td>{{ u.cpf }}</td>
             <td>
-                <a href="{{ url_for('main.login') }}" class="btn btn-warning btn-sm">Editar</a>
+                <a href="{{ url_for('main.edit_user',user_id=u.id) }}" class="btn btn-warning btn-sm">Editar</a>
                 <a href="{{ url_for('main.admin_excluir_usuario', user_id=u.id) }}" 
                    onclick="return confirm('Excluir cliente?')" 
                    class="btn btn-danger btn-sm">Excluir</a>

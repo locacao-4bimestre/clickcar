@@ -263,6 +263,36 @@ def admin_usuario_page():
     return render_template("admin/users/list.html", usuarios=usuarios)
 
 
+@main.route("/admin/usuario/edit/<int:user_id>", methods=["POST", "GET"])
+def edit_user(user_id):
+    db = SessionLocal()
+    usuario = db.query(Usuario).filter_by(id=user_id).first()
+    if not usuario:
+        flash("Este usuário não existe", "error")
+        return redirect(url_for("main.admin_usuario_page"))
+    perfis = db.query(Perfil).all()
+    method = request.method
+    if method == "POST":
+
+        form = request.form
+        nome = form.get("nome")
+        email = form.get("email")
+        perfil = form.get("perfil")
+        telefone = form.get("telefone")
+        cpf = form.get("cpf")
+        endereco = form.get("endereco")
+        usuario.nome = nome
+        usuario.email = email
+        usuario.perfil_id = perfil
+        usuario.telefone = telefone
+        usuario.cpf = cpf
+        usuario.endereco = endereco
+        db.commit()
+        flash("Usuário alterado! ", "success")
+        return redirect(url_for("main.edit_user", user_id=user_id))
+    return render_template("admin/users/edit.html", usuario=usuario, perfis=perfis)
+
+
 @main.route("/excluir_usuario/<int:user_id>")
 def admin_excluir_usuario(user_id):
     db = SessionLocal()

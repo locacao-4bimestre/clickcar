@@ -64,3 +64,51 @@
 .newsletter-section input {
     border: none;
 }
+
+
+/* 
+flash messages:
+*/
+
+/* FLASH MESSAGES */
+.flash-message {
+    padding: 14px 18px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    animation: fadeInDown 0.4s ease-out;
+}
+
+/* Sucesso */
+.flash-success {
+    background-color: var(--primary-green);
+}
+
+/* Erro */
+.flash-error {
+    background-color: #d9534f;
+}
+
+/* Aviso */
+.flash-warning {
+    background-color: var(--yellow);
+    color: #333;
+}
+
+/* Informação */
+.flash-info {
+    background-color: #0275d8;
+}
+
+/* Animação */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
