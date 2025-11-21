@@ -407,6 +407,20 @@ def edit_reserva(id):
         return redirect(url_for("main.edit_reserva", id=id))
     return render_template("admin/rentals/edit.html", reserva=reserva, statuses=statuses)
 
+
+@main.route("/admin/reservas/excluir/<int:reserva_id>")
+def excluir_reserva(reserva_id):
+    db = SessionLocal()
+    reserva = db.query(Reserva).filter_by(id=reserva_id).first()
+    if not reserva:
+        flash("Essa reserva não existe", "error")
+        return redirect(url_for("main.listar_reservas"))
+    else:
+        db.delete(reserva)
+        db.commit()
+        flash("Reserva excluída", "success")
+        return redirect(url_for("main.listar_reservas"))
+
 # ===========================================================
 # LISTAR VEÍCULOS
 # ===========================================================

@@ -35,7 +35,7 @@
 
             <td>
                 <a href="{{ url_for('main.edit_reserva',id=r.id) }}" class="btn btn-warning btn-sm">Editar</a>
-                <a href="" 
+                <a href="{{ url_for('main.excluir_reserva',reserva_id=r.id) }}" 
                    onclick="return confirm('Excluir cliente?')" 
                    class="btn btn-danger btn-sm">Excluir</a>
             </td>
