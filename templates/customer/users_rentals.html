@@ -18,7 +18,6 @@
             <th>Status</th>
             <th>Valor total</th>
             <th>Criado em</th>
-            <th> Ações </th>
         </tr>
     </thead>
 
@@ -35,12 +34,7 @@
             <td>{{ r.criado_em }}</td>
             
 
-            <td>
-                <a href="" class="btn btn-warning btn-sm">Editar</a>
-                <a href="" 
-                   onclick="return confirm('Excluir cliente?')" 
-                   class="btn btn-danger btn-sm">Excluir</a>
-            </td>
+           
         </tr>
         {% endfor %}
     </tbody>
