@@ -30,6 +30,11 @@ class Usuario(UserMixin, db.Model):
 
     tokens = db.relationship('Token', backref='usuarios',
                              lazy=True, cascade="all, delete-orphan")
+    reservas = db.relationship(
+        'Reserva',
+        backref='usuario',
+        cascade="all, delete-orphan"
+    )
 
     def get_id(self):
         return str(self.id)
@@ -83,7 +88,6 @@ class Reserva(db.Model):
     valor_total = db.Column(db.Float)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
 
-    usuario = db.relationship('Usuario', backref='reservas')
     veiculo = db.relationship('Veiculo', backref='reservas')
 
 

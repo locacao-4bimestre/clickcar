@@ -189,12 +189,16 @@ def login():
         user = Usuario.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.senha_hash, senha):
-            login_user(user)
+            if user.email_verificado:
+                login_user(user)
 
-            if user.perfil.nome_perfil == "Cliente":
-                return redirect(url_for('main.customer_dashboard'))
+                if user.perfil.nome_perfil == "Cliente":
+                    return redirect(url_for('main.customer_dashboard'))
+                else:
+                    return redirect(url_for('main.index'))
             else:
-                return redirect(url_for('main.index'))
+                flash("Verifique seu email", "info")
+                return redirect(url_for("main.verify_user_email", user_id=user.id))
 
         flash('Credenciais incorretas', 'danger')
 
@@ -210,11 +214,11 @@ def register():
         cpf = request.form['cpf']  # PEGANDO CPF
         endereco = request.form['endereco']
         senha = request.form['senha']
-
+        user = Usuario.query.filter_by(email=email).first()
         # Verificar email duplicado
-        if Usuario.query.filter_by(email=email).first():
+        if user:
             flash("Esse email já está cadastrado.", "warning")
-            return redirect(url_for('main.register'))
+            return redirect(url_for('main.verify_user_email', user_id=user.id))
 
         perfil_cliente = Perfil.query.filter_by(nome_perfil="Cliente").first()
 
@@ -331,11 +335,13 @@ def admin_excluir_usuario(user_id):
     db = SessionLocal()
     usuario = db.query(Usuario).filter_by(id=user_id).first()
     if not usuario:
-        return redirect(url_for("main.admin_excluir_usuario", user_id=user_id))
+        flash("Esse usuário não existe", "error")
+        return redirect(url_for("main.admin_usuario_page"))
     else:
         db.delete(usuario)
         db.commit()
-        return redirect(url_for("main.login"))
+        flash(f"Usuario {usuario.nome} deletado ", "success")
+        return redirect(url_for("main.admin_usuario_page"))
 
 
 # Reservas
