@@ -6,7 +6,7 @@ import secrets
 from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app as app
+from flask import Blueprint, make_response, render_template, request, redirect, url_for, flash, current_app as app
 from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
@@ -30,6 +30,10 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 # Funções utilitárias
 # ===================================
+
+
+def logged_cliente():
+    return request.cookies.get("cliente_id")
 
 
 def allButWhiteSpace():
@@ -123,7 +127,8 @@ def customer_dashboard():
     if current_user.perfil.nome_perfil != 'Cliente':
         flash("Acesso permitido apenas para clientes.", "warning")
         return redirect(url_for('main.index'))
-    return render_template('customer/dashboard.html')
+    print(current_user.id, logged_cliente())
+    return render_template('customer/dashboard.html', user_id=current_user.id)
 
 
 @main.route('/customer/profile')
@@ -155,9 +160,23 @@ def customer_edit_profile():
     return render_template('customer/profile_edit.html', user=current_user)
 
 
+@main.route("/minhasreservas/<int:user_id>")
+def customer_rentals(user_id):
+
+    usuario_logado_id = logged_cliente()
+    print(usuario_logado_id, user_id)
+    if (str(user_id) == usuario_logado_id):
+        db = SessionLocal()
+        reservas = db.query(Reserva).filter_by(user_id=user_id).all()
+        print(reservas)
+        return render_template("customer/users_rentals.html", reservas=reservas)
+    flash("Você não está autorizado a entrar nessa página", "error")
+    return redirect(url_for("main.index"))
 # ===========================================================
 # HOME
 # ===========================================================
+
+
 @main.route('/')
 def index():
     veiculos = Veiculo.query.all()
@@ -190,14 +209,22 @@ def login():
 
         if user and check_password_hash(user.senha_hash, senha):
             if user.email_verificado:
-                login_user(user)
 
+                login_user(user)
+                print(user.perfil)
                 if user.perfil.nome_perfil == "Cliente":
-                    return redirect(url_for('main.customer_dashboard'))
+                    resp = make_response(
+                        redirect(url_for('main.customer_dashboard')))
+                    resp.set_cookie('cliente_id', str(user.id), httponly=True)
+                    return resp
                 else:
-                    return redirect(url_for('main.index'))
+                    resp = make_response(redirect(url_for('main.index')))
+                    resp.set_cookie('cliente_id', str(user.id), httponly=True)
+                    return resp
             else:
+
                 flash("Verifique seu email", "info")
+                create_token(user.id)
                 return redirect(url_for("main.verify_user_email", user_id=user.id))
 
         flash('Credenciais incorretas', 'danger')
@@ -513,7 +540,7 @@ def ver_veiculo(id):
         data_inicio = date.fromisoformat(form.get("data_inicio"))
         data_fim = date.fromisoformat(form.get("data_fim"))
         nova_reserva = Reserva(
-            user_id=11,
+            user_id=logged_cliente(),
             veiculo_id=veiculo.id,
             data_inicio=data_inicio,
             data_fim=data_fim,

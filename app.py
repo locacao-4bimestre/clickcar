@@ -19,10 +19,10 @@ app.config.from_object(Config)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'joaopauloqueirozcosta@gmail.com'
-app.config['MAIL_PASSWORD'] = 'pwgm sxse ixpu cfjs'
+app.config['MAIL_USERNAME'] = 'clickcarprojeto@gmail.com'
+app.config['MAIL_PASSWORD'] = 'eczh aqcw jwfl njga'
 app.config['MAIL_DEFAULT_SENDER'] = (
-    'ClickCar', 'joaopauloqueirozcosta@gmail.com')
+    'ClickCar', 'clickcarprojeto@gmail.com')
 
 serializer = URLSafeTimedSerializer("secret-key-serializer")
 

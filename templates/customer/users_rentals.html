@@ -3,11 +3,12 @@
 {% block title %}Reservas{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold mb-4">Gerenciar reservas</h2>
+<h2 class="fw-bold mb-4">Ver reservas</h2>
 
 
 
 <table class="table table-hover shadow-sm bg-white">
+     {% if reservas %}
     <thead class="table-success">
         <tr>
             <th>User ID</th>
@@ -21,6 +22,7 @@
         </tr>
     </thead>
 
+   
     <tbody>
         {% for r in reservas %}
         <tr>
@@ -34,7 +36,7 @@
             
 
             <td>
-                <a href="{{ url_for('main.edit_reserva',id=r.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                <a href="" class="btn btn-warning btn-sm">Editar</a>
                 <a href="" 
                    onclick="return confirm('Excluir cliente?')" 
                    class="btn btn-danger btn-sm">Excluir</a>
@@ -42,5 +44,8 @@
         </tr>
         {% endfor %}
     </tbody>
+    {% else %}
+    <p>Você não possui reservas</p>
+    {% endif %}
 </table>
 {% endblock %}

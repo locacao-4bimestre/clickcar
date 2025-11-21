@@ -26,7 +26,7 @@
             <div class="card-body text-center">
                 <h5 class="card-title fw-bold">Minhas Reservas</h5>
                 <p class="text-muted">Visualize seus veículos alugados.</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">
+                <a href="{{ url_for('main.customer_rentals',user_id=user_id) }}" class="btn btn-primary  w-100">
                     Em breve
                 </a>
             </div>
