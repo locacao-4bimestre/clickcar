@@ -60,27 +60,36 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg">
+<div class="promo-bar">
+    ESQUENTA BLACK FRIDAY — OFERTAS EXCLUSIVAS POR TEMPO LIMITADO!
+</div>
+
+<nav class="navbar navbar-expand-lg main-nav shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">ClickCar</a>
+
+        <!-- LOGO -->
+        <a class="navbar-brand fs-3 fw-bold" href="{{ url_for('main.index') }}">
+            Click<span class="highlight">Car</span>
+        </a>
 
         <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="menu">
-            <ul class="navbar-nav ms-auto">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.listar_veiculos') }}">Veículos</a>
+            <ul class="navbar-nav ms-auto align-items-center">
+
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-prof" href="{{ url_for('main.listar_veiculos') }}">Veículos</a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.requisitos') }}">Requisitos</a>
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-prof" href="{{ url_for('main.requisitos') }}">Requisitos</a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.faq') }}">FAQ</a>
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-prof" href="{{ url_for('main.faq') }}">FAQ</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('main.faq') }}">FAQ</a>
@@ -89,40 +98,47 @@
                 {% if current_user.is_authenticated %}
 
                     {% if current_user.perfil.nome_perfil == 'Cliente' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.customer_dashboard') }}">Minha Área</a>
-                        </li>
-
-                    {% elif current_user.perfil.nome_perfil == 'Admin' %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                Admin
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}">Gerenciar Veículos</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_tipos') }}">Tipos de Veículo</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}">Clientes</a></li>
-                            </ul>
-                        </li>
+                    <li class="nav-item mx-2">
+                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.customer_dashboard') }}">
+                            Minha Área
+                        </a>
+                    </li>
                     {% endif %}
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.logout') }}">Sair</a>
+                    {% if current_user.perfil.nome_perfil == 'Admin' %}
+                    <li class="nav-item dropdown mx-2">
+                        <a class="nav-link dropdown-toggle nav-prof" href="#" role="button" data-bs-toggle="dropdown">
+                            Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}">Veículos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.novo_tipo') }}">Tipos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}">Clientes</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item mx-2">
+                        <a class="btn btn-outline-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.logout') }}">
+                            Sair
+                        </a>
                     </li>
 
                 {% else %}
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                    <li class="nav-item mx-2">
+                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.login') }}">
+                            Login
+                        </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.register') }}">Criar Conta</a>
+                    <li class="nav-item mx-2">
+                        <a class="btn btn-warning rounded-pill px-3 fw-semibold" href="{{ url_for('main.register') }}">
+                            Criar Conta
+                        </a>
                     </li>
-
                 {% endif %}
-
             </ul>
+
         </div>
     </div>
 </nav>
