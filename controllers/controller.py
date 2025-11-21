@@ -6,7 +6,7 @@ import secrets
 from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
-from flask import Blueprint, make_response, render_template, request, redirect, url_for, flash, current_app as app
+from flask import Blueprint, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
 from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
@@ -32,20 +32,45 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 
 
+def validate_password(password: str):
+    if len(password) < 8:
+        return False
+    letters = string.ascii_letters
+    numbers = string.digits
+    special = string.punctuation
+    num_letters = 0
+    num_nums = 0
+    num_specials = 0
+
+    for char in password:
+        if char in letters:
+            num_letters += 1
+        elif char in numbers:
+            num_nums += 1
+        elif char in special:
+            num_specials += 1
+        else:
+            return False
+    if (num_letters > 0) and (num_nums > 0) and (num_specials > 0):
+        return True
+    return False
+
+
 def logged_cliente():
     return request.cookies.get("cliente_id")
 
 
 def allButWhiteSpace():
-    all = [char for char in string.printable if char not in string.whitespace]
-    return all
+    allButWhiteSpace = [
+        char for char in string.printable if char not in string.whitespace]
+    return allButWhiteSpace
 
 
 def generate_token(size: int):
     allbutwhite = allButWhiteSpace()
     token = ""
     for i in range(0, size):
-        randomChar = allbutwhite[random.randint(0, len(allbutwhite))]
+        randomChar = allbutwhite[random.randint(0, len(allbutwhite)-1)]
         token += randomChar
 
     return token
@@ -108,6 +133,23 @@ def findLastToken(usuario_id):
     return token
 
 
+def time_to_expire(token: Token):
+    print("Criado em: ", token.criado_em, "Hoje: ", datetime.now())
+    time = (token.criado_em + timedelta(minutes=3)) - datetime.now()
+    print(time.total_seconds() > 0)
+    if time.total_seconds() > 0:
+        return {
+            'min': (time.total_seconds() // 60),
+            'sec': (time.total_seconds() % 60),
+            'total': (time.total_seconds())
+        }
+    return {
+        'min': 0,
+        'sec': 0,
+        'total': 0
+    }
+
+
 def isTokenExpired(token: Token):
     token_time = token.criado_em
     if datetime.now() < (token_time + timedelta(minutes=3)):
@@ -134,7 +176,9 @@ def customer_dashboard():
 @main.route('/customer/profile')
 @login_required
 def customer_profile():
+
     if current_user.perfil.nome_perfil != 'Cliente':
+
         flash("Acesso negado.", "danger")
         return redirect(url_for('main.index'))
     return render_template('customer/profile.html', user=current_user)
@@ -152,7 +196,7 @@ def customer_edit_profile():
         current_user.email = request.form['email']
         current_user.telefone = request.form.get('telefone')
         current_user.endereco = request.form.get('endereco')
-
+        current_user.cnh = request.form.get("cnh")
         db.session.commit()
         flash("Dados atualizados com sucesso!", "success")
         return redirect(url_for('main.customer_profile'))
@@ -241,14 +285,22 @@ def register():
         cpf = request.form['cpf']  # PEGANDO CPF
         endereco = request.form['endereco']
         senha = request.form['senha']
+
         user = Usuario.query.filter_by(email=email).first()
         # Verificar email duplicado
         if user:
-            flash("Esse email já está cadastrado.", "warning")
-            return redirect(url_for('main.verify_user_email', user_id=user.id))
+            if not user.email_verificado:
+                flash("Esse email já está cadastrado. Verifique-o ", "warning")
+                return redirect(url_for('main.verify_user_email', user_id=user.id))
+            flash("Esse email já está cadastrado. Logue em sua conta", "warning")
+            return redirect(url_for('main.login'))
 
         perfil_cliente = Perfil.query.filter_by(nome_perfil="Cliente").first()
-
+        senha_validada = validate_password(senha)
+        if not senha_validada:
+            flash(
+                "A senha precisa conter ao menos 8 digítos um caractere especial, uma letra normal e um número", "warning")
+            return redirect(url_for("main.register"))
         novo = Usuario(
             nome=nome,
             email=email,
@@ -303,7 +355,15 @@ def verify_user_email(user_id):
                 return redirect(url_for("main.verify_user_email", user_id=user_id))
         flash("Token inválido", "error")
         return redirect(url_for("main.verify_user_email", user_id=user_id))
-    return render_template('auth/auth_login.html')
+    return render_template('auth/auth_login.html', user_id=user_id)
+
+
+@main.route("/newToken/<int:user_id>", methods=["POST", "GET"])
+def new_token(user_id):
+    create_token(user_id)
+    flash("Token gerado, confira seu email", "info")
+    print("indo para a verificacao... ")
+    return redirect(url_for('main.verify_user_email', user_id=user_id))
 
 
 @main.route('/logout')
@@ -803,3 +863,16 @@ def newsletter():
 
     flash("E-mail cadastrado com sucesso! ", "success")
     return redirect(url_for('main.index'))
+
+
+# API
+
+@main.route("/api/token_time/<int:user_id>")
+def token_time(user_id):
+    last_token = findLastToken(user_id)
+    resp = time_to_expire(last_token)
+
+    return jsonify({
+        'min': str(int(resp['min'])),
+        'sec': str(int(resp['sec']))
+    })

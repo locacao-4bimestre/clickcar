@@ -27,6 +27,7 @@ class Usuario(UserMixin, db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     email_verificado = db.Column(db.Boolean, default=False)
     codigo_verificacao = db.Column(db.String(6))
+    cnh = db.Column(db.String(11), unique=True)
 
     tokens = db.relationship('Token', backref='usuarios',
                              lazy=True, cascade="all, delete-orphan")
