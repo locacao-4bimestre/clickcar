@@ -65,12 +65,10 @@
     border: none;
 }
 
-<<<<<<< Updated upstream
 
 /* 
 flash messages:
 */
-
 /* FLASH MESSAGES */
 .flash-message {
     padding: 14px 18px;
@@ -81,26 +79,27 @@ flash messages:
     animation: fadeInDown 0.4s ease-out;
 }
 
-/* Sucesso */
+/* Sucesso — verde padrão */
 .flash-success {
-    background-color: var(--primary-green);
+    background-color: #1e7e34; /* verde escuro */
 }
 
-/* Erro */
+/* Erro — verde intenso */
 .flash-error {
-    background-color: #d9534f;
+    background-color: #28a745; /* verde médio forte */
 }
 
-/* Aviso */
+/* Aviso — verde claro */
 .flash-warning {
-    background-color: var(--yellow);
-    color: #333;
+    background-color: #8fce00; /* verde claro vibrante */
+    color: #1a1a1a; /* melhor contraste */
 }
 
-/* Informação */
+/* Informação — verde suave */
 .flash-info {
-    background-color: #0275d8;
+    background-color: #5cb85c; /* verde suave */
 }
+
 
 /* Animação */
 @keyframes fadeInDown {
@@ -113,7 +112,6 @@ flash messages:
         transform: translateY(0);
     }
 }
-=======
 .promo-bar {
     width: 100%;
     background: #000;
@@ -153,5 +151,112 @@ flash messages:
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
->>>>>>> Stashed changes
 
+
+
+
+
+
+
+
+
+
+/* chatbot teste
+/* BOTÃO FLUTUANTE */
+#chat-button {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: var(--primary-green);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: .2s;
+    z-index: 9999;
+}
+
+#chat-button:hover {
+    transform: scale(1.1);
+}
+
+/* JANELA DO CHAT */
+#chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 25px;
+    width: 300px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 600ms ease;
+    z-index: 9999;
+}
+
+/* Cabeçalho */
+.chat-header {
+    background: var(--primary-green);
+    color: white;
+    padding: 10px 15px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Botão fechar */
+#chat-close {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Corpo */
+.chat-body {
+    padding: 15px;
+    height: 200px;
+    overflow-y: auto;
+    background: #111;
+    color: #ddd;
+}
+
+/* Rodapé */
+.chat-footer {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: #222;
+}
+
+#chat-send {
+    background: var(--primary-green);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+#chat-send:hover {
+    background: #007c37;
+}
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

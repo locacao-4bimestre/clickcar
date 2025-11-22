@@ -2,7 +2,12 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from sqlalchemy import create_engine
-
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
+import os
+load_dotenv()
+gemini = genai.Client(api_key=os.getenv("api_key"))
 db = SQLAlchemy()
 mail = Mail()
 
