@@ -1099,11 +1099,17 @@ def token_time(user_id):
 def bot_msg():
     data = request.get_json()
     print(data)
+    email_verificado = False
+    if current_user.is_authenticated:
+        if current_user.email_verificado:
+            email_verificado = True
+    print(current_user.is_authenticated)
     response = gemini.models.generate_content(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
-            system_instruction="""Você está em um site de locadora ajudando um cliente, no geral peça para ele se logar e ir para aba de carros" \
-            ou caso seja uma duvida diferente tente falar com ele, siga as regras: Não pule linhas entre paragrafos, mande uma mensagem curta e sem textos diferentes como negrito e itálico"""),
+            system_instruction=f"""Você está em um site de locadora ajudando um cliente, no geral ajude ele a explorar o site, indicando ele ir para aba de carros, minhas reservas, fazer login caso nao tenha feito, verificar o email se precisar etc." \
+            ou caso seja uma duvida diferente tente falar com ele, siga as regras: Não pule linhas entre paragrafos, mande uma mensagem curta e sem 
+            textos diferentes como negrito e itálico, contexto: Usuario está logado? : {'sim' if current_user.is_authenticated else 'nao'}, {("Ele possui email_verificado: {'sim' if email_verificado else 'não'") if current_user.is_authenticated else ""}"""),
         contents=data["text"]
     )
     print(response.text)
