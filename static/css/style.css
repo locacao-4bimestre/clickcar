@@ -1,3 +1,8 @@
+.content-box{
+    min-height: 50vh;
+}
+
+
 /* FOOTER */
 .footer {
     background: #222;

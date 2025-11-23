@@ -17,9 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.fontSize = fontSize + "%";
 
     document.getElementById("increaseFont")?.addEventListener("click", () => {
-        fontSize += 10;
-        document.body.style.fontSize = fontSize + "%";
-        save("fontSize", fontSize);
+        if (fontSize < 120){
+            fontSize += 10;
+            document.body.style.fontSize = fontSize + "%";
+            save("fontSize", fontSize);
+        }
     });
 
     document.getElementById("decreaseFont")?.addEventListener("click", () => {
@@ -87,20 +89,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    function translatePage() {
-        const elements = document.querySelectorAll("*");
+   function translatePage() {
+    const elements = document.querySelectorAll("[data-translate]");
 
-        elements.forEach(el => {
-            let text = el.innerText.trim();
+    elements.forEach(el => {
+        const key = el.dataset.translate;
+        if (translations[language][key]) {
+            el.innerText = translations[language][key];
+        }
+    });
 
-            if (translations[language][text]) {
-                el.innerText = translations[language][text];
-            }
-        });
-
-        document.getElementById("toggleLanguage").innerText =
-            language === "pt" ? "Switch to English" : "Mudar para Português";
+    document.getElementById("toggleLanguage").innerText =
+        language === "pt" ? "Switch to English" : "Mudar para Português";
     }
+
 
     translatePage();
 
@@ -123,10 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const value = parseFloat(item.dataset.price);
 
             if (currency === "BRL") {
-                item.innerText = R$ ${value.toFixed(2)};
+                item.innerText = `R$ ${value.toFixed(2)}`;
             } else {
                 const converted = value / 5.4; // dólar aproximado
-                item.innerText = $ ${converted.toFixed(2)};
+                item.innerText = `${converted.toFixed(2)}`;
             }
         });
     }

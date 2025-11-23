@@ -82,38 +82,38 @@
             <ul class="navbar-nav ms-auto align-items-center">
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.listar_veiculos') }}">Veículos</a>
+                    <a data-translate="Veículos" class="nav-link nav-prof" href="{{ url_for('main.listar_veiculos') }}">Veículos</a>
                 </li>
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.requisitos') }}">Requisitos</a>
+                    <a data-translate="Requisitos" class="nav-link nav-prof" href="{{ url_for('main.requisitos') }}">Requisitos</a>
                 </li>
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.faq') }}">FAQ</a>
+                    <a data-translate="FAQ" class="nav-link nav-prof" href="{{ url_for('main.faq') }}">FAQ</a>
                 </li> 
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="accessibilityMenu" role="button" data-bs-toggle="dropdown">
+                    <a data-translate="Acessibilidade" class="nav-link dropdown-toggle" href="#" id="accessibilityMenu" role="button" data-bs-toggle="dropdown">
                         Acessibilidade
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end p-2">
 
                         <!-- Aumentar fonte -->
                         <li>
-                            <button class="dropdown-item" id="increaseFont">Aumentar letra</button>
+                            <button data-translate="Aumentar Letra" class="dropdown-item" id="increaseFont">Aumentar letra</button>
                         </li>
 
                         <!-- Diminuir fonte -->
                         <li>
-                            <button class="dropdown-item" id="decreaseFont">Diminuir letra</button>
+                            <button data-translate="Diminuir Letra" class="dropdown-item" id="decreaseFont">Diminuir letra</button>
                         </li>
 
                         <li><hr class="dropdown-divider"></li>
 
                         <!-- Modo escuro -->
                         <li>
-                            <button class="dropdown-item" id="toggleDarkMode">Ativar modo escuro</button>
+                            <button data-translate="Ativar modo escuro" class="dropdown-item" id="toggleDarkMode">Ativar modo escuro</button>
                         </li>
 
                         <li><hr class="dropdown-divider"></li>
@@ -129,7 +129,7 @@
 
                     {% if current_user.perfil.nome_perfil == 'Cliente' %}
                     <li class="nav-item mx-2">
-                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.customer_dashboard') }}">
+                        <a data-translate="Minha Área" class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.customer_dashboard') }}">
                             Minha Área
                         </a>
                     </li>
@@ -144,25 +144,27 @@
                             <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}">Veículos</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('main.novo_tipo') }}">Tipos</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}">Clientes</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_usuario_page') }}">Usuários</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.listar_reservas') }}">Reservas</a></li>
                         </ul>
                     </li>
                     {% endif %}
 
                     <li class="nav-item mx-2">
-                        <a class="btn btn-outline-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.logout') }}">
+                        <a data-translate="Sair" class="btn btn-outline-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.logout') }}">
                             Sair
                         </a>
                     </li>
 
                 {% else %}
                     <li class="nav-item mx-2">
-                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.login') }}">
+                        <a data-translate="Login" class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.login') }}">
                             Login
                         </a>
                     </li>
 
                     <li class="nav-item mx-2">
-                        <a class="btn btn-warning rounded-pill px-3 fw-semibold" href="{{ url_for('main.register') }}">
+                        <a data-translate="Criar Conta" class="btn btn-warning rounded-pill px-3 fw-semibold" href="{{ url_for('main.register') }}">
                             Criar Conta
                         </a>
                     </li>
@@ -184,7 +186,7 @@
     {% endwith %}
 </div>
 
-<div class="container mt-4">
+<div class="container content-box mt-4">
     {% block content %}{% endblock %}
 </div>
 
@@ -257,6 +259,7 @@
     </div>
 </div>
 <script src="{{ url_for('static',filename='js/chat.js') }}"></script>
+<script src="{{ url_for('static',filename='js/acessibility.js') }}"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

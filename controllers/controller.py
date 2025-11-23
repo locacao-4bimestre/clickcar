@@ -33,8 +33,38 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 
 
-# -----------------------
-# Helper: remove não-dígitos
+def format_brl(value):
+    try:
+        # Converte para float
+        number = float(value)
+    except:
+        return "0,00"
+
+    # Formato americano com thousand separator
+    formatted = f"{number:,.2f}"  # exemplo -> "1,234,567.89"
+
+    # Quebra em parte inteira e decimal
+    inteiro, decimal = formatted.split(".")
+
+    # Troca milhar: "," → "."
+    inteiro = inteiro.replace(",", ".")
+
+    # Junta no formato brasileiro
+    return f"{inteiro},{decimal}"
+
+
+def brl(value):
+    return format_brl(value)
+
+
+main.add_app_template_filter(brl, 'brl')
+
+
+def datebr(value):
+    return value.strftime('%d/%m/%Y %H:%M')
+
+
+main.add_app_template_filter(datebr, 'datebr')
 
 
 def _only_digits(s: str) -> str:
@@ -685,18 +715,19 @@ def edit_reserva(id):
         form = request.form
         user_id = form.get("user")
         veiculo_id = form.get("veiculo")
-        data_inicio = form.get("data_inicio")
-        data_fim = form.get("data_fim")
+        data_inicio = date.fromisoformat(form.get("data_inicio"))
+        data_fim = date.fromisoformat(form.get("data_fim"))
         status = form.get("status")
+        print(status)
         reserva.user_id = user_id
         reserva.veiculo_id = veiculo_id
-        reserva.data_inicio = data_inicio
-        reserva.data_fim = data_fim
+        reserva.data_inicio = (data_inicio)
+        reserva.data_fim = (data_fim)
         reserva.status = status
         reserva.valor_total = recalc_valor_diaria(
             data_inicio, data_fim, veiculo_id)
         db.commit()
-        flash("Reserva editada! ")
+        flash("Reserva editada! ", 'success')
         return redirect(url_for("main.edit_reserva", id=id))
     return render_template("admin/rentals/edit.html", reserva=reserva, statuses=statuses)
 
