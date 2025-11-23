@@ -351,3 +351,44 @@ flash messages:
 .error404-button:hover {
     background: #007c37;  /* verde mais escuro no hover */
 }
+
+/* ERROR 403 page */
+.error403-body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.error403-container {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.error403-title {
+    font-size: 120px;
+    font-weight: bold;
+    color: var(--primary-green); /* verde igual ao restante do site */
+    margin: 0;
+}
+
+.error403-message {
+    font-size: 20px;
+    margin: 10px 0 30px;
+    color: #333;
+}
+
+.error403-button {
+    display: inline-block;
+    text-decoration: none;
+    padding: 12px 25px;
+    background: var(--primary-green); /* botão verde */
+    color: #fff;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: 0.2s ease;
+}
+
+.error403-button:hover {
+    background: #007c37; /* verde mais forte no hover */
+}

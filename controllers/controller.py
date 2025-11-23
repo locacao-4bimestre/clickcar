@@ -7,7 +7,7 @@ import secrets
 from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
-from flask import Blueprint, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
+from flask import Blueprint, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
 from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
@@ -1213,3 +1213,8 @@ def bot_msg():
 @main.app_errorhandler(404)
 def error404(e):
     return render_template("error/error404.html"), 404
+
+
+@main.app_errorhandler(403)
+def error403(e):
+    return render_template("error/error403.html"), 403
