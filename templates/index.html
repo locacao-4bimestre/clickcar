@@ -23,18 +23,20 @@
     <form method="GET" action="{{ url_for('main.listar_veiculos') }}">
         <div class="row g-3">
 
-            <div class="col-md-4">
-                <input class="form-control" type="text" name="q" placeholder="Modelo, marca...">
+            <div class="col-md-3">
+                <input class="form-control" type="text" name="q" id="q" placeholder="Modelo, marca...">
             </div>
 
             <div class="col-md-3">
-                <input class="form-control" type="text" name="marca" placeholder="Marca">
+                <input class="form-control" type="text" name="marca" id="marca" placeholder="Marca">
             </div>
 
-            <div class="col-md-3">
-                <input class="form-control" type="number" name="ano" placeholder="Ano">
+            <div class="col-md-2">
+                <input class="form-control" type="number" name="ano" id="ano" placeholder="Ano">
             </div>
-
+            <div class="col-md-2">
+                <button class="btn btn-secondary w-100" id="clean_filter_btn">Limpar filtros</button>
+            </div>
             <div class="col-md-2">
                 <button class="btn btn-primary w-100">Buscar</button>
             </div>
@@ -199,7 +201,7 @@
         box-shadow: 0 4px 18px rgba(0,0,0,0.25);
     }
 </style>
-
+<script src="{{ url_for('static',filename='js/filter.js') }}"></script>
 
 
 {% endblock %}

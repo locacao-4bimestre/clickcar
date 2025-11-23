@@ -6,11 +6,13 @@
 <h2 class="fw-bold mb-4">Veículos</h2>
 
 <form method="GET" class="d-flex gap-2 mb-4">
-    <input type="text" name="q" class="form-control" placeholder="Modelo ou marca">
-    <input type="text" name="marca" class="form-control" placeholder="Marca">
-    <input type="number" name="ano" class="form-control" placeholder="Ano">
-    <button class="btn btn-secondary">Filtrar</button>
+    <input type="text" name="q" id="q" class="form-control" placeholder="Modelo ou marca">
+    <input type="text" name="marca" id="marca" class="form-control" placeholder="Marca">
+    <input type="number" name="ano" id="ano" class="form-control" placeholder="Ano">
+    <button type="button" class="btn btn-secondary" id="clean_filter_btn" style="white-space: nowrap;">Limpar filtros</button>
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
 </form>
+
 
 <div class="row g-4">
     {% for v in veiculos %}
@@ -36,5 +38,5 @@
     </div>
     {% endfor %}
 </div>
-
+<script src="{{ url_for('static',filename='js/filter.js') }}"></script>
 {% endblock %}
