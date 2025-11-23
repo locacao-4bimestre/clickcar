@@ -191,6 +191,20 @@ def is_valid_rg(rg: str) -> bool:
     return bool(_RE_RG_FORMATADO.match(rg.strip()))
 
 
+# lógica de negócios
+
+def isBeforeToday(date):
+    if not date:
+        return True
+    return date < datetime.now().date()
+
+
+def isAfterTheTarget(target, date):
+    if not date or not target:
+        return False
+    return date > target
+
+
 def validate_password(password: str):
     if len(password) < 8:
         return False
@@ -586,8 +600,10 @@ def new_token(user_id):
 @main.route('/logout')
 @login_required
 def logout():
+    resp = make_response(redirect(url_for("main.index")))
+    resp.delete_cookie("cliente_id")
     logout_user()
-    return redirect(url_for('main.index'))
+    return resp
 
 
 # =====================
@@ -830,8 +846,19 @@ def ver_veiculo(id):
             return redirect(url_for("main.ver_veiculo", id=veiculo.id))
         data_inicio = date.fromisoformat(form.get("data_inicio"))
         data_fim = date.fromisoformat(form.get("data_fim"))
+        if (isBeforeToday(data_inicio) or not isAfterTheTarget(data_inicio, data_fim)):
+            if not isAfterTheTarget(data_inicio, data_fim):
+                flash(
+                    "Você não pode reservar um carro com uma data de início maior do que a de entrega!", 'info')
+            if isBeforeToday(data_inicio):
+                flash(
+                    "Você não pode realizar uma reserva para um dia anterior ao dia de hoje", 'info')
+            return redirect(url_for("main.ver_veiculo", id=id))
+        if not current_user.is_authenticated:
+            flash("Faça login para reservar um carro! ", 'info')
+            return redirect(url_for("main.ver_veiculo", id=id))
         nova_reserva = Reserva(
-            user_id=logged_cliente(),
+            user_id=current_user.id,
             veiculo_id=veiculo.id,
             data_inicio=data_inicio,
             data_fim=data_fim,
@@ -1095,6 +1122,36 @@ def token_time(user_id):
     })
 
 
+# simulação:
+@main.route("/api/simulação", methods=["POST", "GET"])
+def get_simulacao():
+    db = SessionLocal()
+    data = request.get_json()
+    inicio = date.fromisoformat(data['inicio'])
+    fim = date.fromisoformat(data['fim'])
+    veiculo = db.query(Veiculo).filter_by(id=data['veiculo_id']).first()
+    if not veiculo or not fim or not inicio:
+        return jsonify({
+            'status': '404',
+            'msg': 'Algo aconteceu, provavelmente um campo faltando'
+        })
+    if isBeforeToday(inicio) or isBeforeToday(fim):
+        return jsonify({
+            'status': '404',
+            'msg': 'Você não pode reservar um carro para um dia anterior ao dia de hoje!'
+        })
+    if not isAfterTheTarget(inicio, fim):
+        return jsonify({
+            'status': '404',
+            'msg': 'Você não pode reservar um carro com uma data de início maior do que a de entrega!'
+        })
+    else:
+        return jsonify({
+            'status': '200',
+            'valor': recalc_valor_diaria(inicio, fim, veiculo.id)
+        })
+
+
 @main.route("/api/chatbot", methods=['POST', 'GET'])
 def bot_msg():
     data = request.get_json()
@@ -1109,7 +1166,7 @@ def bot_msg():
         config=types.GenerateContentConfig(
             system_instruction=f"""Você está em um site de locadora ajudando um cliente, no geral ajude ele a explorar o site, indicando ele ir para aba de carros, minhas reservas, fazer login caso nao tenha feito, verificar o email se precisar etc." \
             ou caso seja uma duvida diferente tente falar com ele, siga as regras: Não pule linhas entre paragrafos, mande uma mensagem curta e sem 
-            textos diferentes como negrito e itálico, contexto: Usuario está logado? : {'sim' if current_user.is_authenticated else 'nao'}, {("Ele possui email_verificado: {'sim' if email_verificado else 'não'") if current_user.is_authenticated else ""}"""),
+            textos diferentes como negrito e itálico, contexto: Usuario está logado? : {'sim' if current_user.is_authenticated else 'nao'}, {(f"Ele possui email_verificado: {'sim' if email_verificado else 'não'}") if current_user.is_authenticated else ""}"""),
         contents=data["text"]
     )
     print(response.text)

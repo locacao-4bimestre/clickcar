@@ -260,3 +260,46 @@ flash messages:
         opacity: 1;
     }
 }
+
+
+
+
+
+
+
+/* Simulação */
+
+
+.simulate-card {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #e5e5e5;
+    padding: 18px 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    animation: fadeIn 0.25s ease-out;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.sim-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--primary-green); /* mantém o verde do site */
+    margin-bottom: 8px;
+}
+
+.sim-result {
+    font-size: 16px;
+    font-weight: 500;
+    color: #444;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
