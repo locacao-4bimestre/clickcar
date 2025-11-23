@@ -1206,3 +1206,10 @@ def bot_msg():
         'model': '2.5',
         'text': response.text
     })
+
+
+# Error handlers
+
+@main.app_errorhandler(404)
+def error404(e):
+    return render_template("error/error404.html"), 404
