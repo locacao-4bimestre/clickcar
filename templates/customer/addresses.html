@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Meus Endereços{% endblock %}
+
+{% block content %}
+
+<div class="w-75 mx-auto mt-4">
+
+    <h2 class="fw-bold mb-4 text-center" style="color: var(--primary-green);">
+        Meus Endereços
+    </h2>
+
+    <a href="{{ url_for('main.adicionar_endereco', user_id=user.id) }}" 
+       class="btn btn-primary mb-3">
+        + Adicionar Novo Endereço
+    </a>
+
+    {% if enderecos|length == 0 %}
+        <div class="alert alert-warning text-center">
+            Nenhum endereço cadastrado.
+        </div>
+    {% else %}
+
+        {% for e in enderecos %}
+        <div class="bg-white p-3 mb-3 rounded shadow-sm border">
+
+            <h5 class="fw-bold mb-2" style="color: var(--primary-green);">
+                Endereço #{{ loop.index }}
+            </h5>
+
+            <p class="mb-1"><strong>CEP:</strong> {{ e.cep }}</p>
+            <p class="mb-1"><strong>Logradouro:</strong> {{ e.logradouro }}</p>
+            <p class="mb-1"><strong>Número:</strong> {{ e.numero }}</p>
+            <p class="mb-1"><strong>Bairro:</strong> {{ e.bairro }}</p>
+            <p class="mb-1"><strong>Cidade:</strong> {{ e.cidade }}</p>
+            <p class="mb-1"><strong>Estado:</strong> {{ e.estado }}</p>
+            <p class="mb-2"><strong>Complemento:</strong> {{ e.complemento }}</p>
+
+            <div class="d-flex gap-2">
+                <a href="/address/{{e.id}}/edit" 
+                   class="btn btn-sm btn-warning ">
+                    Editar
+                </a>
+
+                <a href="{{ url_for('main.delete_address', address_id=e.id) }}" 
+                   class="btn btn-sm btn-danger"
+                   onclick="return confirm('Tem certeza que deseja excluir este endereço?')">
+                    Excluir
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

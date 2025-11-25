@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar Endereço{% endblock %}
+
+{% block content %}
+
+<div class="w-50 mx-auto bg-white p-4 rounded shadow-sm">
+
+    <h2 class="fw-bold mb-4 text-center" style="color: var(--primary-green);">
+        Adicionar Endereço
+    </h2>
+
+    <form method="POST" action="{{ url_for('main.adicionar_endereco',user_id=user.id) }}">
+
+        <div class="mb-3">
+            <label class="form-label">CEP</label>
+            <input type="text" name="cep" class="form-control" id="cep" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Logradouro</label>
+            <input type="text" name="logradouro" class="form-control" id="logradouro" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="text" name="numero" class="form-control" id="numero" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Bairro</label>
+            <input type="text" name="bairro" class="form-control" id="bairro" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cidade</label>
+            <input type="text" name="cidade" class="form-control" id="cidade" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <input type="text" name="estado" class="form-control" id="estado" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Complemento</label>
+            <input type="text" name="complemento" class="form-control" id="complemento" >
+        </div>
+
+        <button class="btn btn-primary w-100">Salvar Endereço</button>
+
+        <p class="text-center mt-3">
+            <a href="{{ url_for('main.customer_dashboard') }}" class="text-decoration-none">
+                Voltar ao Perfil
+            </a>
+        </p>
+    </form>
+    <script src="{{ url_for('static',filename='js/cepAPI.js') }}">  
+       
+    </script>
+</div>
+
+{% endblock %}
