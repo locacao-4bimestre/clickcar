@@ -12,7 +12,10 @@
     <div class="card mx-auto mt-4 p-4 shadow-sm" style="max-width: 500px;">
         <h5>Código da Reserva: #{{ reserva.id }}</h5>
         <p>Enviamos os detalhes para o seu e-mail.</p>
-        <a href="{{ url_for('main.customer_rentals', user_id=current_user.id) }}" class="btn btn-primary w-100 mt-2">
+        <a href="{{ url_for('main.download_comprovante', reserva_id=reserva.id) }}" class="btn btn-dark w-100 mb-2">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Baixar Comprovante (PDF)
+        </a>
+        <a href="{{ url_for('main.customer_rentals', user_id=current_user.id) }}" class="btn btn-primary w-100">
             Ver minhas reservas
         </a>
     </div>

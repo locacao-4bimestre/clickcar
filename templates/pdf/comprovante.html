@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprovante</title>
+    <style>
+        /* CSS OTIMIZADO PARA XHTML2PDF */
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            color: #333; 
+            font-size: 12px;
+        }
+        .header { 
+            text-align: center; 
+            border-bottom: 2px solid #009641; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+        }
+        .logo { font-size: 24px; font-weight: bold; color: #009641; }
+        .title { font-size: 18px; margin-top: 5px; font-weight: bold; }
+        
+        .box { 
+            background: #f4f4f4; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border: 1px solid #ddd; 
+        }
+        .box h3 { 
+            margin: 0 0 10px 0; 
+            color: #555; 
+            font-size: 14px; 
+            border-bottom: 1px solid #ccc; 
+            padding-bottom: 5px; 
+        }
+        
+        /* Layout usando Tabelas em vez de Flexbox */
+        .info-table { width: 100%; }
+        .info-table td { vertical-align: top; padding: 2px; }
+        
+        .finance-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .finance-table th { background-color: #ddd; text-align: left; padding: 5px; }
+        .finance-table td { border-bottom: 1px solid #eee; padding: 5px; }
+        
+        .total { 
+            text-align: right; 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: #009641; 
+            margin-top: 15px; 
+        }
+        
+        .footer { 
+            margin-top: 40px; 
+            text-align: center; 
+            font-size: 10px; 
+            color: #777; 
+            border-top: 1px solid #eee; 
+            padding-top: 10px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">ClickCar Locadora</div>
+        <div class="title">Comprovante de Reserva #{{ reserva.id }}</div>
+        <p>Confirmado em: {{ reserva.criado_em|datebr }}</p>
+    </div>
+
+    <div class="box">
+        <h3>Dados do Cliente</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>Nome:</strong> {{ reserva.usuario.nome }}</td>
+            </tr>
+            <tr>
+                <td><strong>CPF:</strong> {{ reserva.usuario.cpf }}</td>
+            </tr>
+            <tr>
+                <td><strong>E-mail:</strong> {{ reserva.usuario.email }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="box">
+        <h3>Detalhes da Locação</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>Veículo:</strong> {{ reserva.veiculo.modelo }} - {{ reserva.veiculo.marca }} ({{ reserva.veiculo.ano }})</td>
+            </tr>
+            <tr>
+                <td><strong>Placa:</strong> {{ reserva.veiculo.placa }}</td>
+            </tr>
+            <tr>
+                <td><strong>Retirada:</strong> {{ reserva.data_inicio|datebr }}</td>
+            </tr>
+            <tr>
+                <td><strong>Devolução:</strong> {{ reserva.data_fim|datebr }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong> Confirmado (Pago)</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="box">
+        <h3>Resumo Financeiro</h3>
+        <table class="finance-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th style="text-align: right;">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Diária do Veículo</td>
+                    <td style="text-align: right;">R$ {{ reserva.veiculo.preco_por_dia|brl }}</td>
+                </tr>
+                <tr>
+                    <td>Período</td>
+                    <td style="text-align: right;">{{ (reserva.data_fim - reserva.data_inicio).days + 1 }} dias</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="total">
+            Total Pago: R$ {{ reserva.valor_total|brl }}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Obrigado por escolher a ClickCar! Apresente este documento na retirada do veículo.</p>
+        <p>ClickCar Locadora de Veículos Ltda.</p>
+    </div>
+
+</body>
+</html>

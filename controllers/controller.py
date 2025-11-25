@@ -14,7 +14,11 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import sessionmaker, scoped_session
 from extensions import mail, basedir, gemini, types
 from datetime import date, datetime
-
+from io import BytesIO
+from flask import send_file
+from io import BytesIO
+from flask import send_file
+from xhtml2pdf import pisa
 
 database_url = os.environ.get('DATABASE_URL') or \
     'sqlite:///' + os.path.join(basedir, 'locacao.db')
@@ -1267,3 +1271,38 @@ def process_payment():
     send_email_with_id(current_user.id, "Pagamento Confirmado", "Sua reserva foi realizada!")
 
     return render_template('payment/success.html', reserva=nova_reserva)
+
+@main.route('/reservas/download/<int:reserva_id>')
+@login_required
+def download_comprovante(reserva_id):
+    # 1. Busca a reserva
+    reserva = Reserva.query.get_or_404(reserva_id)
+
+    # 2. Segurança
+    if current_user.id != reserva.user_id and current_user.perfil.nome_perfil != 'Admin':
+        flash("Acesso negado", "danger")
+        return redirect(url_for('main.index'))
+
+    # 3. Renderiza o HTML
+    html_string = render_template('pdf/comprovante.html', reserva=reserva)
+
+    # 4. Converte para PDF usando xhtml2pdf
+    pdf_buffer = BytesIO()
+    
+    # pisa.CreatePDF converte o HTML para o buffer de memória
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf_buffer)
+
+    if pisa_status.err:
+        flash("Erro ao gerar PDF", "error")
+        return redirect(url_for('main.index'))
+
+    # Volta o ponteiro do arquivo para o início para poder ler
+    pdf_buffer.seek(0)
+
+    # 5. Envia para download
+    return send_file(
+        pdf_buffer,
+        download_name=f'ClickCar_Reserva_{reserva.id}.pdf',
+        as_attachment=True,
+        mimetype='application/pdf'
+    )
