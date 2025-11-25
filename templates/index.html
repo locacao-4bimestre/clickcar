@@ -24,23 +24,30 @@
     <h4 class="fw-bold mb-3">Buscar veículos</h4>
 
     <form method="GET" action="{{ url_for('main.listar_veiculos') }}">
-        <div class="row g-3">
+        <div class="row g-2 align-items-center">
 
             <div class="col-md-3">
                 <input class="form-control" type="text" name="q" id="q" placeholder="Modelo, marca...">
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <input class="form-control" type="text" name="marca" id="marca" placeholder="Marca">
             </div>
 
             <div class="col-md-2">
                 <input class="form-control" type="number" name="ano" id="ano" placeholder="Ano">
             </div>
+
             <div class="col-md-2">
-                <button class="btn btn-secondary w-100" id="clean_filter_btn">Limpar filtros</button>
+                <select name="ordem" id="ordem" class="form-select">
+                    <option value="">Ordenar por...</option>
+                    <option value="menor_preco">Menor Preço</option>
+                    <option value="maior_preco">Maior Preço</option>
+                </select>
             </div>
-            <div class="col-md-2">
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="button" class="btn btn-secondary w-100" id="clean_filter_btn">Limpar</button>
                 <button class="btn btn-primary w-100">Buscar</button>
             </div>
 

@@ -768,12 +768,18 @@ def excluir_reserva(reserva_id):
 
 @main.route('/veiculos')
 def listar_veiculos():
+    # Parâmetros de filtro
     q = request.args.get('q', type=str)
     marca = request.args.get('marca', type=str)
     ano = request.args.get('ano', type=int)
+    
+    # Parâmetro de ordenação (NOVO)
+    ordem = request.args.get('ordem', type=str)
 
+    # Query Base
     query = Veiculo.query.filter(Veiculo.status == 'disponivel')
 
+    # Aplica Filtros
     if q:
         like = f"%{q}%"
         query = query.filter(
@@ -787,9 +793,15 @@ def listar_veiculos():
     if ano:
         query = query.filter(Veiculo.ano == ano)
 
+    if ordem == 'menor_preco':
+        query = query.order_by(Veiculo.preco_por_dia.asc())
+    elif ordem == 'maior_preco':
+        query = query.order_by(Veiculo.preco_por_dia.desc())
+    else:
+        query = query.order_by(Veiculo.id.desc())
+
     veiculos = query.all()
     return render_template('vehicles/list.html', veiculos=veiculos)
-
 
 # ===========================================================
 # ADMIN — CADASTRAR TIPO
@@ -1202,7 +1214,7 @@ def error403(e):
     return render_template("error/error403.html"), 403
 
 # ===========================================================
-# CHECKOUT E PAGAMENTO (NOVAS ROTAS)
+# CHECKOUT E PAGAMENTO 
 # ===========================================================
 
 @main.route('/checkout', methods=['POST'])
@@ -1221,7 +1233,7 @@ def checkout():
     data_inicio = date.fromisoformat(data_inicio_str)
     data_fim = date.fromisoformat(data_fim_str)
     
-    # 3. Validações de Regra de Negócio (Reutilizando sua lógica)
+    # 3. Validações de Regra de Negócio 
     if isBeforeToday(data_inicio):
         flash("Data de início inválida (passado).", "warning")
         return redirect(url_for('main.ver_veiculo', id=veiculo_id))
@@ -1272,10 +1284,10 @@ def process_payment():
     )
     
     db.session.add(nova_reserva)
-    db.session.commit() # <--- A reserva é salva aqui
+    db.session.commit() 
 
     # ==========================================================
-    # PARTE B: ENVIO DE E-MAIL DE CONFIRMAÇÃO (NOVO CÓDIGO)
+    # ENVIO DE E-MAIL DE CONFIRMAÇÃO
     # ==========================================================
     try:
         # Renderiza o HTML bonito que criamos
@@ -1357,9 +1369,7 @@ def admin_dashboard():
     chart_labels = [s[0].capitalize() for s in status_data]
     chart_values = [s[1] for s in status_data]
 
-    # 3. DADOS PARA O GRÁFICO DE LINHA (Receita Mensal - Simulado para SQLite simples)
-    # Nota: O SQLite tem limitações com datas complexas, então faremos uma lógica simples em Python
-    # Pegando todas as reservas confirmadas
+
     reservas_confirmadas = db.query(Reserva).filter(Reserva.status == 'confirmada').all()
     
     # Agrupando por mês (YYYY-MM) em um dicionário

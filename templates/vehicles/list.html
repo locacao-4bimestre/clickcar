@@ -5,12 +5,38 @@
 {% block content %}
 <h2 class="fw-bold mb-4">Veículos</h2>
 
-<form method="GET" class="d-flex gap-2 mb-4">
-    <input type="text" name="q" id="q" class="form-control" placeholder="Modelo ou marca">
-    <input type="text" name="marca" id="marca" class="form-control" placeholder="Marca">
-    <input type="number" name="ano" id="ano" class="form-control" placeholder="Ano">
-    <button type="button" class="btn btn-secondary" id="clean_filter_btn" style="white-space: nowrap;">Limpar filtros</button>
-    <button type="submit" class="btn btn-secondary">Filtrar</button>
+<form method="GET" class="row g-2 mb-4 align-items-center">
+    <div class="col-md-3">
+        <input type="text" name="q" id="q" class="form-control" 
+               placeholder="Modelo ou marca" value="{{ request.args.get('q', '') }}">
+    </div>
+
+    <div class="col-md-2">
+        <input type="text" name="marca" id="marca" class="form-control" 
+               placeholder="Marca" value="{{ request.args.get('marca', '') }}">
+    </div>
+
+    <div class="col-md-2">
+        <input type="number" name="ano" id="ano" class="form-control" 
+               placeholder="Ano" value="{{ request.args.get('ano', '') }}">
+    </div>
+
+    <div class="col-md-2">
+        <select name="ordem" id="ordem" class="form-select">
+            <option value="">Ordenar por...</option>
+            <option value="menor_preco" {% if request.args.get('ordem') == 'menor_preco' %}selected{% endif %}>
+                Menor Preço
+            </option>
+            <option value="maior_preco" {% if request.args.get('ordem') == 'maior_preco' %}selected{% endif %}>
+                Maior Preço
+            </option>
+        </select>
+    </div>
+
+    <div class="col-md-3 d-flex gap-2">
+        <button type="button" class="btn btn-secondary w-100" id="clean_filter_btn">Limpar</button>
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
 </form>
 
 
