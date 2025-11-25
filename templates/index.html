@@ -4,16 +4,19 @@
 {% block content %}
 
 
-<div class="text-center p-5 rounded shadow-sm mb-4" 
-     style="background: linear-gradient(rgba(0,150,65,0.75), rgba(0,150,65,0.75)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200'); 
-            background-size: cover; background-position: center; color: white;">
-
-    <h1 class="fw-bold display-4">Alugue seu carro com praticidade</h1>
-    <p class="lead">Os melhores veículos, com o melhor preço e atendimento rápido.</p>
-
-    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning btn-lg mt-3 fw-bold btn-home-cta">
-        Ver veículos disponíveis
+<div class="mb-5">
+    <a href="{{ url_for('main.listar_veiculos') }}">
+        <img src="{{ url_for('static', filename='img/banner-home.jpg') }}" 
+             alt="Banner Principal ClickCar" 
+             class="img-fluid w-100 rounded shadow-sm"
+             style="object-fit: cover; min-height: 300px;">
     </a>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning btn-lg fw-bold btn-home-cta px-5 py-3">
+            Ver veículos disponíveis
+        </a>
+    </div>
 </div>
 
 
@@ -114,6 +117,13 @@
 
     </div>
 </section>
+
+<div class="container-fluid px-3 my-5"> <img src="{{ url_for('static', filename='img/banner-meio.jpg') }}" 
+         alt="Viaje com a ClickCar" 
+         class="img-fluid w-100 shadow-sm"
+         style="object-fit: cover; height: 400px; border-radius: 20px;">
+</div>
+
 <section class="mt-5 mb-5">
     <h2 class="fw-bold text-center mb-4">O que nossos clientes dizem</h2>
 
@@ -142,6 +152,94 @@
 
     </div>
 </section>
+
+<section class="container my-5 py-4">
+    <h2 class="fw-bold mb-4">Aluguel de carro para Aplicativos</h2>
+
+    <div class="row align-items-center">
+        
+        <div class="col-lg-5 mb-4 mb-lg-0">
+            <img src="{{ url_for('static', filename='img/motorista-uber.jpg') }}" 
+                alt="Motorista ClickCar" 
+                class="img-fluid rounded-4 shadow-sm w-100"
+                style="object-fit: cover; height: 100%; min-height: 350px;">
+        </div>
+
+        <div class="col-lg-7 ps-lg-5">
+            <h4 class="fw-bold mb-3">Você já é ou quer se tornar motorista e precisa alugar um carro?</h4>
+            <p class="text-muted mb-4">
+                A ClickCar tem os melhores planos para quem roda com Uber, 99 e Indrive. 
+                Confira agora as vantagens exclusivas para parceiros:
+            </p>
+
+            <div class="row g-3">
+                
+                <div class="col-md-6">
+                    <div class="benefit-app-card">
+                        <div class="icon-box">
+                            <i class="bi bi-tag-fill"></i>
+                        </div>
+                        <span class="fw-semibold">Descontos exclusivos para parceiros</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="benefit-app-card">
+                        <div class="icon-box">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                        </div>
+                        <span class="fw-semibold">Não precisa de cartão de crédito</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="benefit-app-card">
+                        <div class="icon-box">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <span class="fw-semibold">Facilidade para negativados</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="benefit-app-card">
+                        <div class="icon-box">
+                            <i class="bi bi-speedometer"></i>
+                        </div>
+                        <span class="fw-semibold">Sem limite de quilometragem</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .benefit-app-card {
+        display: flex;
+        align-items: center;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        height: 100%;
+        transition: 0.2s ease;
+    }
+
+    .benefit-app-card:hover {
+        border-color: var(--primary-green);
+        box-shadow: 0 4px 12px rgba(0, 150, 65, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .benefit-app-card .icon-box {
+        font-size: 24px;
+        color: var(--primary-green); 
+        margin-right: 15px;
+        min-width: 40px; 
+    }
+</style>
 
 
 <section class="newsletter-section mt-5 p-5 rounded-4 text-center">

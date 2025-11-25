@@ -129,7 +129,7 @@
         font-size: 15px;
     }
     .main-nav {
-        background-color: #009641;
+        background-color: #255000;
         padding: 12px 0;
     }
 
@@ -253,7 +253,7 @@
     }
 
     #chat-send:hover {
-        background: #007c37;
+        background: #255000;
     }
     @keyframes slideUp {
         from {
@@ -459,4 +459,28 @@ body.dark-mode .form-select {
     border-color: var(--primary-green) !important;
     box-shadow: 0 4px 15px black; /* Um brilho verde suave */
     transform: translateY(-3px); /* Levanta um pouco */
+}
+
+/* =========================================
+   AJUSTE DE CORES DA MARCA (BOOTSTRAP OVERRIDE)
+   ========================================= */
+
+.btn-success {
+    background-color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    color: white;
+    transition: 0.2s;
+}
+
+
+.btn-success:hover {
+    background-color: #007c37 !important; 
+    border-color: #007c37 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 150, 65, 0.3);
+}
+
+
+.text-success {
+    color: var(--primary-green) !important;
 }

@@ -10,8 +10,8 @@
 
     <style>
         :root {
-            --primary-green: #009641;
-            --yellow: #ff9800;
+            --primary-green: #255000;
+            --yellow: #588100;
             --light-gray: #F4F4F4;
             --dark: #333;
         }
@@ -39,7 +39,7 @@
         }
 
         .btn-primary:hover {
-            background-color: #007c37;
+            background-color: #255000;
         }
 
         .btn-warning {
@@ -68,8 +68,10 @@
 <nav class="navbar navbar-expand-lg main-nav shadow-sm">
     <div class="container">
 
-        <a class="navbar-brand fs-3 fw-bold" href="{{ url_for('main.index') }}">
-            Click<span class="highlight">Car</span>
+        <a class="navbar-brand py-0" href="{{ url_for('main.index') }}">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                alt="ClickCar Logo" 
+                style="max-height: 45px; width: auto;">
         </a>
 
         <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
