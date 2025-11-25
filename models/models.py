@@ -4,6 +4,10 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+tabela_favoritos = db.Table('tabela_favoritos',
+    db.Column('user_id', db.Integer, db.ForeignKey('usuarios.id'), primary_key=True),
+    db.Column('veiculo_id', db.Integer, db.ForeignKey('veiculos.id'), primary_key=True)
+)
 
 class Perfil(db.Model):
     __tablename__ = 'perfis'
@@ -28,6 +32,8 @@ class Usuario(UserMixin, db.Model):
     email_verificado = db.Column(db.Boolean, default=False)
     codigo_verificacao = db.Column(db.String(6))
     cnh = db.Column(db.String(11), unique=True)
+    lista_favoritos = db.relationship('Veiculo', secondary=tabela_favoritos, 
+                                      backref=db.backref('favoritado_por', lazy='dynamic'))
 
     tokens = db.relationship('Token', backref='usuarios',
                              lazy=True, cascade="all, delete-orphan")

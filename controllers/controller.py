@@ -1491,3 +1491,41 @@ def delete_account():
         print("Erro ao excluir conta:", e)
         flash("Ocorreu um erro ao tentar excluir sua conta.", "danger")
         return redirect(url_for('main.customer_dashboard'))
+    
+# ===========================================================
+# WISHLIST / FAVORITOS
+# ===========================================================
+
+@main.route('/api/favorite/<int:veiculo_id>', methods=['POST'])
+@login_required
+def toggle_favorite(veiculo_id):
+    db = SessionLocal()
+    
+    # CORREÇÃO: Usamos .filter_by().first() em vez de .get_or_404()
+    veiculo = db.query(Veiculo).filter_by(id=veiculo_id).first()
+    
+    # Se não achar o carro, retorna erro 404 manualmente
+    if not veiculo:
+        return jsonify({'status': 'error', 'message': 'Veículo não encontrado'}), 404
+
+    # Busca o usuário na mesma sessão do banco
+    usuario = db.query(Usuario).get(current_user.id)
+    
+    # Lógica de adicionar/remover
+    if veiculo in usuario.lista_favoritos:
+        usuario.lista_favoritos.remove(veiculo)
+        action = 'removed'
+    else:
+        usuario.lista_favoritos.append(veiculo)
+        action = 'added'
+    
+    db.commit()
+    return jsonify({'status': 'success', 'action': action})
+
+@main.route('/minha-lista')
+@login_required
+def customer_favorites():
+    if current_user.perfil.nome_perfil != 'Cliente':
+        return redirect(url_for('main.index'))
+        
+    return render_template('customer/favorites.html', veiculos=current_user.lista_favoritos)

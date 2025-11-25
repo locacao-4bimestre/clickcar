@@ -3,66 +3,103 @@
 {% block title %}Veículos{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold mb-4">Veículos</h2>
+<div class="container">
+    <h2 class="fw-bold mb-4">Veículos Disponíveis</h2>
 
-<form method="GET" class="row g-2 mb-4 align-items-center">
-    <div class="col-md-3">
-        <input type="text" name="q" id="q" class="form-control" 
-               placeholder="Modelo ou marca" value="{{ request.args.get('q', '') }}">
-    </div>
+    <form method="GET" action="{{ url_for('main.listar_veiculos') }}" class="row g-2 mb-5 align-items-center">
+        
+        <div class="col-md-3">
+            <input type="text" name="q" id="q" class="form-control" 
+                   placeholder="Modelo ou marca" value="{{ request.args.get('q', '') }}">
+        </div>
 
-    <div class="col-md-2">
-        <input type="text" name="marca" id="marca" class="form-control" 
-               placeholder="Marca" value="{{ request.args.get('marca', '') }}">
-    </div>
+        <div class="col-md-2">
+            <input type="text" name="marca" id="marca" class="form-control" 
+                   placeholder="Marca" value="{{ request.args.get('marca', '') }}">
+        </div>
 
-    <div class="col-md-2">
-        <input type="number" name="ano" id="ano" class="form-control" 
-               placeholder="Ano" value="{{ request.args.get('ano', '') }}">
-    </div>
+        <div class="col-md-2">
+            <input type="number" name="ano" id="ano" class="form-control" 
+                   placeholder="Ano" value="{{ request.args.get('ano', '') }}">
+        </div>
 
-    <div class="col-md-2">
-        <select name="ordem" id="ordem" class="form-select">
-            <option value="">Ordenar por...</option>
-            <option value="menor_preco" {% if request.args.get('ordem') == 'menor_preco' %}selected{% endif %}>
-                Menor Preço
-            </option>
-            <option value="maior_preco" {% if request.args.get('ordem') == 'maior_preco' %}selected{% endif %}>
-                Maior Preço
-            </option>
-        </select>
-    </div>
+        <div class="col-md-2">
+            <select name="ordem" id="ordem" class="form-select">
+                <option value="">Ordenar por...</option>
+                <option value="menor_preco" {% if request.args.get('ordem') == 'menor_preco' %}selected{% endif %}>
+                    Menor Preço
+                </option>
+                <option value="maior_preco" {% if request.args.get('ordem') == 'maior_preco' %}selected{% endif %}>
+                    Maior Preço
+                </option>
+            </select>
+        </div>
 
-    <div class="col-md-3 d-flex gap-2">
-        <button type="button" class="btn btn-secondary w-100" id="clean_filter_btn">Limpar</button>
-        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-    </div>
-</form>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="button" class="btn btn-secondary w-100" id="clean_filter_btn">
+                Limpar
+            </button>
+            <button type="submit" class="btn btn-primary w-100">
+                Filtrar
+            </button>
+        </div>
+    </form>
 
+    <div class="row g-4">
+        {% for v in veiculos %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                
+                <div class="card-img-wrapper position-relative">
+                    
+                    <button class="btn-favorite shadow-sm" data-id="{{ v.id }}">
+                        {% if current_user.is_authenticated and v in current_user.lista_favoritos %}
+                            <i class="bi bi-heart-fill" style="color: red;"></i>
+                        {% else %}
+                            <i class="bi bi-heart text-dark"></i>
+                        {% endif %}
+                    </button>
 
-<div class="row g-4">
-    {% for v in veiculos %}
-    <div class="col-md-4">
-        <div class="card shadow-sm p-3">
-
-
-            {% if v.fotos and v.fotos|length > 0 %}
-                <img src="{{ url_for('static', filename='uploads/' ~ v.fotos[0].filename) }}"
-                     class="card-img-top rounded mb-3"
-                     style="height: 200px; object-fit: cover;">
-            {% else %}
-                <div class="bg-light border rounded d-flex justify-content-center align-items-center mb-3"
-                     style="height:200px;">
-                    <span class="text-muted">Sem foto</span>
+                    {% if v.fotos and v.fotos|length > 0 %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ v.fotos[0].filename) }}"
+                             class="card-img-top rounded-top"
+                             style="height: 220px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light border rounded-top d-flex justify-content-center align-items-center"
+                             style="height:220px;">
+                            <span class="text-muted">Sem foto</span>
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
 
-            <h5 class="fw-bold">{{ v.modelo }} ({{ v.ano }})</h5>
-            <p class="text-success fw-semibold">R$ {{ "%.2f"|format(v.preco_por_dia) }} / dia</p>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="fw-bold mb-1">{{ v.modelo }}</h5>
+                    <p class="text-muted small mb-3">{{ v.marca }} - {{ v.ano }}</p>
+                    
+                    <div class="mt-auto">
+                        <p class="text-success fw-bold fs-5 mb-3">
+                            R$ {{ "%.2f"|format(v.preco_por_dia)|replace('.', ',') }} <span class="fs-6 text-muted fw-normal">/ dia</span>
+                        </p>
+                        
+                        <a href="{{ url_for('main.ver_veiculo', id=v.id) }}" class="btn btn-success w-100 fw-bold py-2">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                </div>
 
-            <a href="{{ url_for('main.ver_veiculo', id=v.id) }}" class="btn btn-success">Ver</a>        </div>
+            </div>
+        </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search text-muted mb-3" style="font-size: 3rem;"></i>
+                <h3 class="text-muted">Nenhum veículo encontrado.</h3>
+                <p class="text-muted">Tente ajustar os filtros da busca.</p>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
+
 <script src="{{ url_for('static',filename='js/filter.js') }}"></script>
+<script src="{{ url_for('static',filename='js/wishlist.js') }}"></script>
+
 {% endblock %}

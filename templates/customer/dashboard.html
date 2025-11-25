@@ -7,36 +7,51 @@
     
     <div class="row g-4">
         
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h5 class="card-title fw-bold">Meu Perfil</h5>
-                    <p class="text-muted">Veja e atualize seus dados pessoais.</p>
-                    <a href="{{ url_for('main.customer_profile') }}" class="btn btn-primary w-100">
+                    <p class="text-muted">Veja e atualize seus dados.</p>
+                    <a href="{{ url_for('main.customer_profile') }}" class="btn btn-primary w-100 mt-auto">
                         Acessar
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h5 class="card-title fw-bold">Minhas Reservas</h5>
                     <p class="text-muted">Visualize seus veículos alugados.</p>
-                    <a href="{{ url_for('main.customer_rentals', user_id=user_id) }}" class="btn btn-primary w-100">
+                    <a href="{{ url_for('main.customer_rentals', user_id=user_id) }}" class="btn btn-primary w-100 mt-auto">
                         Acessar
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h5 class="card-title fw-bold text-black">
+                        Favoritos
+                    </h5>
+                    <p class="text-muted">Carros que você curtiu.</p>
+                    
+                    <a href="{{ url_for('main.customer_favorites') }}" class="btn btn-primary w-100 mt-auto">
+                        Ver Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h5 class="card-title fw-bold">Alugar um Veículo</h5>
                     <p class="text-muted">Veja todos os carros disponíveis.</p>
-                    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning w-100">
+                    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning w-100 mt-auto">
                         Ver veículos
                     </a>
                 </div>
@@ -46,7 +61,6 @@
     </div>
 
     <hr class="my-5 text-muted">
-    
     <div class="text-end mb-4">
         <small class="text-muted me-2">Deseja encerrar seu vínculo conosco?</small>
         <button type="button" class="btn btn-link text-danger p-0 text-decoration-none fw-semibold" 
@@ -62,7 +76,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title fw-bold">Tem certeza? 😢</h5>
+                <h5 class="modal-title fw-bold">Tem certeza?</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center p-4">
@@ -71,7 +85,6 @@
             </div>
             <div class="modal-footer justify-content-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                
                 <form action="{{ url_for('main.delete_account') }}" method="POST">
                     <button type="submit" class="btn btn-danger fw-bold">Sim, excluir minha conta</button>
                 </form>

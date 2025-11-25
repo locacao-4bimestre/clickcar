@@ -484,3 +484,36 @@ body.dark-mode .form-select {
 .text-success {
     color: var(--primary-green) !important;
 }
+
+.card-img-wrapper {
+    position: relative; /* Necessário para o botão absoluto funcionar */
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+.btn-favorite {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    border: none;
+    z-index: 10;
+}
+
+.btn-favorite:hover {
+    transform: scale(1.1);
+    background: white;
+}
+
+.btn-favorite i {
+    font-size: 18px;
+    margin-top: 2px;
+}
