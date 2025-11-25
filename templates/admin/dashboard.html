@@ -5,7 +5,7 @@
 <div class="container-fluid pb-5">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Painel Administrativo </h2>
+        <h2 class="fw-bold text-dark">Painel Administrativo</h2>
         <span class="text-muted">Visão geral do sistema</span>
     </div>
 
@@ -47,7 +47,7 @@
     <div class="row g-4 mb-5">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold">📈 Faturamento Mensal</div>
+                <div class="card-header bg-white fw-bold">Faturamento Mensal</div>
                 <div class="card-body">
                     <canvas id="revenueChart"></canvas>
                 </div>
@@ -55,7 +55,7 @@
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white fw-bold"> Status das Reservas</div>
+                <div class="card-header bg-white fw-bold">Status das Reservas</div>
                 <div class="card-body">
                     <canvas id="statusChart"></canvas>
                 </div>
@@ -121,14 +121,14 @@
         new Chart(ctxRevenue, {
             type: 'line',
             data: {
-                labels: {{ meses_chart | tojson }}, // Ex: ['2023-10', '2023-11']
+                labels: {{ meses_chart | tojson }},
                 datasets: [{
                     label: 'Receita (R$)',
                     data: {{ valores_chart | tojson }},
                     borderColor: '#009641',
                     backgroundColor: 'rgba(0, 150, 65, 0.1)',
                     borderWidth: 2,
-                    tension: 0.3, // Curva suave
+                    tension: 0.3,
                     fill: true
                 }]
             },
@@ -139,27 +139,38 @@
             }
         });
 
-        // 2. GRÁFICO DE STATUS (PIZZA)
+        // 2. GRÁFICO DE STATUS (PIZZA) - COM LÓGICA DE CORES
+        const statusLabels = {{ chart_labels | tojson }}; 
+        const statusValues = {{ chart_values | tojson }};
+
+        // Mapeia as cores corretas independente da ordem
+        const backgroundColors = statusLabels.map(label => {
+            label = label.toLowerCase();
+            if (label.includes('confirmada')) return '#009641'; // Verde
+            if (label.includes('cancelada')) return '#dc3545';  // Vermelho
+            if (label.includes('pendente')) return '#ffc107';   // Amarelo
+            return '#6c757d'; // Cinza
+        });
+
         const ctxStatus = document.getElementById('statusChart').getContext('2d');
         new Chart(ctxStatus, {
             type: 'doughnut',
             data: {
-                labels: {{ chart_labels | tojson }}, // Ex: ['Confirmada', 'Pendente']
+                labels: statusLabels,
                 datasets: [{
-                    data: {{ chart_values | tojson }},
-                    backgroundColor: [
-                        '#198754', // Verde (Confirmada)
-                        '#ffc107', // Amarelo (Pendente)
-                        '#dc3545'  // Vermelho (Cancelada)
-                    ],
+                    data: statusValues,
+                    backgroundColor: backgroundColors,
                     borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { position: 'bottom' } }
+                plugins: { 
+                    legend: { position: 'bottom' } 
+                }
             }
         });
     });
 </script>
-{% endblock %}
+
+{% endblock %} ```

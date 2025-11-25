@@ -517,3 +517,19 @@ body.dark-mode .form-select {
     font-size: 18px;
     margin-top: 2px;
 }
+
+.btn-warning {
+    background-color: #ffc107 !important; 
+    border-color: #ffc107 !important;
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+
+.btn-warning:hover {
+    background-color: #e0a800 !important;
+    border-color: #d39e00 !important;
+    color: #000000 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
