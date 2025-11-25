@@ -27,13 +27,20 @@ class Usuario(UserMixin, db.Model):
         'perfis.id'), nullable=False)
     telefone = db.Column(db.String(20))
     cpf = db.Column(db.String(20))
-    endereco = db.Column(db.String(255))
+   
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     email_verificado = db.Column(db.Boolean, default=False)
     codigo_verificacao = db.Column(db.String(6))
     cnh = db.Column(db.String(11), unique=True)
     lista_favoritos = db.relationship('Veiculo', secondary=tabela_favoritos, 
                                       backref=db.backref('favoritado_por', lazy='dynamic'))
+
+    enderecos = db.relationship(
+        "Endereco",
+        backref="usuario",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
 
     tokens = db.relationship('Token', backref='usuarios',
                              lazy=True, cascade="all, delete-orphan")
@@ -46,6 +53,27 @@ class Usuario(UserMixin, db.Model):
     def get_id(self):
         return str(self.id)
 
+
+class Endereco(db.Model):
+    __tablename__ = 'enderecos'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('usuarios.id'),
+        nullable=False
+    )
+
+    estado = db.Column(db.String(2), nullable=False)  # Ex: SP, RJ
+    cidade = db.Column(db.String(100), nullable=False)
+    bairro = db.Column(db.String(120), nullable=False)
+    logradouro = db.Column(db.String(150), nullable=False)
+    numero = db.Column(db.String(20), nullable=False)
+    complemento = db.Column(db.String(150), nullable=True)
+    cep = db.Column(db.String(9), nullable=False)  # Formato 00000-000
+
+   
 
 class TipoVeiculo(db.Model):
     __tablename__ = 'tipo_veiculo'

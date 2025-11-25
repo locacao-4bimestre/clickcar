@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Editar Endereço{% endblock %}
+
+{% block content %}
+
+<div class="w-50 mx-auto bg-white p-4 rounded shadow-sm">
+
+    <h2 class="fw-bold mb-4 text-center" style="color: var(--primary-green);">
+        Editar Endereço
+    </h2>
+
+    <form method="POST" action="{{ url_for('main.edit_address', address_id=endereco.id) }}">
+
+        <div class="mb-3">
+            <label class="form-label">CEP</label>
+            <input type="text" name="cep" class="form-control" id="cep" value="{{ endereco.cep }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Logradouro</label>
+            <input type="text" name="logradouro" class="form-control" id="logradouro" value="{{ endereco.logradouro }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="text" name="numero" class="form-control" id="numero" value="{{ endereco.numero }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Bairro</label>
+            <input type="text" name="bairro" class="form-control" id="bairro" value="{{ endereco.bairro }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cidade</label>
+            <input type="text" name="cidade" class="form-control" id="cidade" value="{{ endereco.cidade }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <input type="text" name="estado" class="form-control" id="estado" value="{{ endereco.estado }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Complemento</label>
+            <input type="text" name="complemento" class="form-control" id="complemento" value="{{ endereco.complemento }}">
+        </div>
+
+        <button class="btn btn-primary w-100">Salvar Alterações</button>
+
+        <p class="text-center mt-3">
+            <a href="{{ url_for('main.customer_address') }}" class="text-decoration-none">
+                Voltar
+            </a>
+        </p>
+    </form>
+    <script src="{{ url_for('static',filename='js/cepAPI.js') }}">  
+        
+    </script>
+</div>
+
+{% endblock %}

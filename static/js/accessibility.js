@@ -1,9 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    
     // 1. CONTROLE DE FONTE
     let fontSize = parseFloat(localStorage.getItem("fontSize")) || 1.0;
     document.body.style.fontSize = fontSize + "em";
-
+    function reset(){
+        if(fontSize < 0.7){
+            fontSize = 0.7
+            document.body.style.fontSize = fontSize + "em";
+            localStorage.setItem("fontSize", fontSize);
+        }
+        else if (fontSize > 1.5){
+            fontSize = 1.5
+            document.body.style.fontSize = fontSize + "em";
+            localStorage.setItem("fontSize", fontSize);
+        }
+    }
+    reset()
     document.getElementById("increaseFont").addEventListener("click", (e) => {
         e.stopPropagation(); // Evita fechar o menu
         if (fontSize < 1.5) { // Limite máximo

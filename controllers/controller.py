@@ -8,7 +8,7 @@ from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
 from flask import Blueprint, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
-from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
+from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva,Endereco
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -415,7 +415,7 @@ def customer_edit_profile():
     if request.method == 'POST':
         email = request.form['email']
         telefone = request.form['telefone']
-        endereco = request.form['endereco']
+        
 
         cnh = request.form.get("cnh")
 
@@ -447,7 +447,6 @@ def customer_edit_profile():
         current_user.nome = request.form['nome']
 
         current_user.telefone = request.form.get('telefone')
-        current_user.endereco = request.form.get('endereco')
         current_user.cnh = request.form.get("cnh")
         print(current_user.email, email, current_user.email != email)
         if email != current_user.email:
@@ -484,6 +483,132 @@ def customer_rentals(user_id):
         return render_template("customer/users_rentals.html", reservas=reservas)
     flash("Você não está autorizado a entrar nessa página", "error")
     return redirect(url_for("main.index"))
+
+# Endereços
+
+@main.route("/customer/address")
+def customer_address():
+    db = SessionLocal()
+    enderecos = db.query(Endereco).filter_by(user_id=current_user.id).all()
+    return render_template("customer/addresses.html",enderecos=enderecos,user=current_user)
+
+@main.route("/deleteaddress/<int:address_id>")
+def delete_address(address_id):
+    db = SessionLocal()
+    endereco = db.query(Endereco).filter_by(id=address_id).first()
+    if endereco:
+        db.delete(endereco)
+        db.commit()
+        flash("Endereço deletado","success")
+    else:
+        flash("Não foi possível deletar endereço")
+    return redirect(url_for("main.customer_address"))
+
+@main.route("/addaddress/<int:user_id>",methods=["POST","GET"])
+def adicionar_endereco(user_id):
+    db = SessionLocal()
+    user = db.query(Usuario).filter_by(id=user_id).first()
+    if not user:
+        flash("Usuário não encontrado",'info')
+        return redirect(url_for("main.index"))
+    else:
+        if request.method == "POST":
+            cep = request.form.get("cep")
+            logradouro = request.form.get("logradouro")
+            numero = request.form.get("numero")
+            bairro = request.form.get("bairro")
+            cidade = request.form.get("cidade")
+            estado = request.form.get("estado")
+            complemento = request.form.get("complemento","")
+            
+            # IF grande para verificar todos
+            if (not cep or not logradouro or not numero or not bairro or
+                not cidade or not estado):
+
+                if not cep:
+                    flash("CEP não pode estar vazio.", "error")
+
+                if not logradouro:
+                    flash("Rua não pode estar vazia.", "error")
+
+                if not numero:
+                    flash("Número não pode estar vazio.", "error")
+
+                if not bairro:
+                    flash("Bairro não pode estar vazio.", "error")
+
+                if not cidade:
+                    flash("Cidade não pode estar vazia.", "error")
+
+                if not estado:
+                    flash("Estado não pode estar vazio.", "error")
+
+                return redirect(url_for("main.adicionar_endereco", user_id=user_id))
+            if not is_valid_cep(cep):
+                flash("Cep inválido",'error')
+                return redirect(url_for("main.adicionar_endereco", user_id=user_id))
+
+            enderecos_do_usuario = db.query(Endereco).filter_by(user_id = user_id).all()
+            for endereco in enderecos_do_usuario:
+                if endereco.cep == cep and endereco.numero == numero:
+                    flash("Esse endereço ja foi adicionado",'info')
+                    return redirect(url_for("main.adicionar_endereco", user_id=user_id))
+            
+            endereco = Endereco(
+                cep=cep,
+                logradouro = logradouro ,
+                numero=numero,
+                bairro=bairro,
+                cidade=cidade,
+                estado=estado,
+                complemento=complemento,
+                user_id=user_id
+            )
+            db.add(endereco)
+            db.commit()
+            flash("Endereco adicionado! ",'success')
+            return redirect(url_for("main.adicionar_endereco", user_id=user_id))
+        return render_template("customer/add_address.html",user=user)
+
+@main.route("/address/<int:address_id>/edit", methods=["GET", "POST"])
+def edit_address(address_id):
+    db = SessionLocal()
+    endereco = db.query(Endereco).filter_by(id=address_id).first()
+
+    if request.method == "POST":
+        cep = request.form.get("cep")
+        logradouro = request.form.get("logradouro")
+        numero = request.form.get("numero")
+        bairro = request.form.get("bairro")
+        cidade = request.form.get("cidade")
+        estado = request.form.get("estado")
+        complemento = request.form.get("complemento")
+
+        # validação
+        if not cep or not logradouro or not numero or not bairro or not cidade or not estado:
+            flash("Todos os campos obrigatórios devem ser preenchidos.",'error')
+            return redirect(request.url)
+        
+        enderecos_do_usuario = db.query(Endereco).filter_by(user_id = endereco.user_id).all()
+        for endereco in enderecos_do_usuario:
+            if endereco.cep == cep and endereco.numero == numero:
+                flash("Esse endereço ja foi adicionado",'info')
+                return redirect(url_for("main.edit_address", address_id=address_id))
+        
+        endereco.cep = cep
+        endereco.logradouro = logradouro
+        endereco.numero = numero
+        endereco.bairro = bairro
+        endereco.cidade = cidade
+        endereco.estado = estado
+        endereco.complemento = complemento
+
+        db.commit()
+        flash("Endereço atualizado com sucesso!",'success')
+        return redirect(url_for("main.customer_address"))
+
+    return render_template("customer/edit_address.html", endereco=endereco)
+
 # ===========================================================
 # HOME
 # ===========================================================
@@ -551,7 +676,6 @@ def register():
         email = request.form['email']
         telefone = request.form['telefone']
         cpf = request.form['cpf']  # PEGANDO CPF
-        endereco = request.form['endereco']
         senha = request.form['senha']
 
         user = Usuario.query.filter_by(email=email).first()
@@ -585,7 +709,6 @@ def register():
             email=email,
             telefone=telefone,
             cpf=cpf,   # SALVANDO CPF
-            endereco=endereco,
             senha_hash=generate_password_hash(senha),
             perfil_id=perfil_cliente.id,
             email_verificado=False,      # como não tem verificação por email
@@ -682,7 +805,7 @@ def edit_user(user_id):
         perfil = form.get("perfil")
         telefone = form.get("telefone")
         cpf = form.get("cpf")
-        endereco = form.get("endereco")
+        
         if db.query(Usuario).filter_by(email=email).first():
             flash("Outro usuário possui este email ", "error")
             return redirect(url_for("main.edit_user", user_id=user_id))
@@ -691,7 +814,7 @@ def edit_user(user_id):
         usuario.perfil_id = perfil
         usuario.telefone = telefone
         usuario.cpf = cpf
-        usuario.endereco = endereco
+
         db.commit()
         flash("Usuário alterado! ", "success")
         return redirect(url_for("main.edit_user", user_id=user_id))
@@ -1059,7 +1182,6 @@ def admin_novo_cliente():
             email=request.form['email'],
             telefone=request.form['telefone'],
             cpf=request.form['cpf'],
-            endereco=request.form['endereco']
         )
         db.session.add(novo)
         db.session.commit()
@@ -1087,7 +1209,7 @@ def admin_editar_cliente(id):
         customer.email = request.form['email']
         customer.telefone = request.form['telefone']
         customer.cpf = request.form['cpf']
-        customer.endereco = request.form['endereco']
+        
 
         db.session.commit()
         flash("Cliente atualizado!", "success")
