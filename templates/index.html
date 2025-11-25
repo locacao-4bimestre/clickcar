@@ -11,7 +11,7 @@
     <h1 class="fw-bold display-4">Alugue seu carro com praticidade</h1>
     <p class="lead">Os melhores veículos, com o melhor preço e atendimento rápido.</p>
 
-    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning btn-lg mt-3 fw-bold">
+    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning btn-lg mt-3 fw-bold btn-home-cta">
         Ver veículos disponíveis
     </a>
 </div>
@@ -179,26 +179,33 @@
 
 <style>
     .promo-banner {
-        background-color: #ffffff;     /* fundo branco ou neutro */
-        padding: 10px;                 /* espaço interno para evitar corte */
+
+        background-color: transparent;
+        padding: 0;
         border-radius: 16px;
-        height: 250px;                 /* mantém proporcional */
+        height: 250px;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .promo-banner img {
         width: 100%;
         height: 100%;
-        object-fit: contain;           /* <<< MOSTRA A IMAGEM INTEIRA */
-        border-radius: 12px;
-        transition: transform .25s ease, box-shadow .25s ease;
+        
+        /* 'cover' faz a imagem preencher todo o espaço sem deixar buracos */
+        object-fit: cover; 
+        
+        /* Garante que a imagem herde o arredondamento se necessário */
+        border-radius: 16px;
+        transition: transform .3s ease;
     }
 
+    /* Efeito de zoom suave ao passar o mouse */
     .promo-banner img:hover {
-        transform: scale(1.01);
-        box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+        transform: scale(1.05);
     }
 </style>
 <script src="{{ url_for('static',filename='js/filter.js') }}"></script>
