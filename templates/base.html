@@ -11,7 +11,7 @@
     <style>
         :root {
             --primary-green: #009641;
-            --yellow: #8db600;
+            --yellow: #ff9800;
             --light-gray: #F4F4F4;
             --dark: #333;
         }
@@ -97,22 +97,21 @@
                         Acessibilidade
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end p-2">
-
                         <li>
                             <button data-i18n="increase_font" class="dropdown-item" id="increaseFont">Aumentar letra</button>
                         </li>
-
                         <li>
                             <button data-i18n="decrease_font" class="dropdown-item" id="decreaseFont">Diminuir letra</button>
                         </li>
-
                         <li><hr class="dropdown-divider"></li>
-
                         <li>
                             <button data-i18n="dark_mode" class="dropdown-item" id="toggleDarkMode">Alternar modo escuro</button>
                         </li>
-
-
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item" id="toggleLanguage">Switch to English</button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <button data-i18n="reset" class="dropdown-item text-danger fw-bold" id="resetAccessibility">
                                 Restaurar Padrão
@@ -137,6 +136,9 @@
                             Admin
                         </a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item fw-bold" href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            
                             <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}">Veículos</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('main.novo_tipo') }}">Tipos</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}">Clientes</a></li>

@@ -1331,3 +1331,60 @@ def download_comprovante(reserva_id):
         mimetype='application/pdf'
     )
 
+# ===========================================================
+# ADMIN — DASHBOARD (NOVA HOME DO ADMIN)
+# ===========================================================
+@main.route('/admin')
+@login_required
+def admin_dashboard():
+    if current_user.perfil.nome_perfil not in ['Admin', 'Atendimento']:
+        flash("Acesso negado", "danger")
+        return redirect(url_for('main.index'))
+
+    db = SessionLocal()
+
+    # 1. CARDS DE RESUMO (Métricas principais)
+    total_faturamento = db.query(func.sum(Reserva.valor_total)).filter(Reserva.status == 'confirmada').scalar() or 0
+    total_reservas = db.query(func.count(Reserva.id)).scalar() or 0
+    total_veiculos = db.query(func.count(Veiculo.id)).scalar() or 0
+    total_clientes = db.query(func.count(Usuario.id)).filter(Usuario.perfil_id == 2).scalar() or 0 # Assumindo ID 2 = Cliente
+
+    # 2. DADOS PARA O GRÁFICO DE PIZZA (Status das Reservas)
+    # Ex: [('confirmada', 10), ('pendente', 5), ('cancelada', 2)]
+    status_data = db.query(Reserva.status, func.count(Reserva.status)).group_by(Reserva.status).all()
+    
+    # Processando para enviar ao JS
+    chart_labels = [s[0].capitalize() for s in status_data]
+    chart_values = [s[1] for s in status_data]
+
+    # 3. DADOS PARA O GRÁFICO DE LINHA (Receita Mensal - Simulado para SQLite simples)
+    # Nota: O SQLite tem limitações com datas complexas, então faremos uma lógica simples em Python
+    # Pegando todas as reservas confirmadas
+    reservas_confirmadas = db.query(Reserva).filter(Reserva.status == 'confirmada').all()
+    
+    # Agrupando por mês (YYYY-MM) em um dicionário
+    faturamento_mensal = {}
+    for r in reservas_confirmadas:
+        mes_ano = r.data_inicio.strftime('%Y-%m') # Chave: "2023-11"
+        if mes_ano in faturamento_mensal:
+            faturamento_mensal[mes_ano] += r.valor_total
+        else:
+            faturamento_mensal[mes_ano] = r.valor_total
+    
+    # Ordenando os meses
+    meses_ordenados = sorted(faturamento_mensal.keys()) # ['2023-10', '2023-11', ...]
+    valores_mensais = [faturamento_mensal[m] for m in meses_ordenados]
+
+    # 4. ÚLTIMAS 5 RESERVAS (Para a tabela rápida)
+    ultimas_reservas = db.query(Reserva).order_by(Reserva.criado_em.desc()).limit(5).all()
+
+    return render_template('admin/dashboard.html',
+                           faturamento=total_faturamento,
+                           total_reservas=total_reservas,
+                           total_veiculos=total_veiculos,
+                           total_clientes=total_clientes,
+                           chart_labels=chart_labels,
+                           chart_values=chart_values,
+                           meses_chart=meses_ordenados,
+                           valores_chart=valores_mensais,
+                           reservas=ultimas_reservas)

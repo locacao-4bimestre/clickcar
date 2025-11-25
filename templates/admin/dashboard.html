@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid pb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Painel Administrativo </h2>
+        <span class="text-muted">Visão geral do sistema</span>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #009641 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-bold text-uppercase">Faturamento Total</h6>
+                    <h3 class="fw-bold text-success mb-0">R$ {{ "%.2f"|format(faturamento)|replace('.', ',') }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #ff9800 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-bold text-uppercase">Total de Reservas</h6>
+                    <h3 class="fw-bold text-dark mb-0">{{ total_reservas }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #17a2b8 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-bold text-uppercase">Veículos Cadastrados</h6>
+                    <h3 class="fw-bold text-dark mb-0">{{ total_veiculos }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #6c757d !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-bold text-uppercase">Clientes Ativos</h6>
+                    <h3 class="fw-bold text-dark mb-0">{{ total_clientes }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white fw-bold">📈 Faturamento Mensal</div>
+                <div class="card-body">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white fw-bold"> Status das Reservas</div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span>Últimas Reservas Realizadas</span>
+            <a href="{{ url_for('main.listar_reservas') }}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Cliente</th>
+                            <th>Veículo</th>
+                            <th>Data Retirada</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reservas %}
+                        <tr>
+                            <td>#{{ r.id }}</td>
+                            <td>{{ r.usuario.nome }}</td>
+                            <td>{{ r.veiculo.modelo }}</td>
+                            <td>{{ r.data_inicio.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                {% if r.status == 'confirmada' %}
+                                    <span class="badge bg-success">Confirmada</span>
+                                {% elif r.status == 'pendente' %}
+                                    <span class="badge bg-warning text-dark">Pendente</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold text-success">R$ {{ "%.2f"|format(r.valor_total)|replace('.', ',') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Nenhuma reserva recente.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // 1. GRÁFICO DE FATURAMENTO (LINHA)
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: {{ meses_chart | tojson }}, // Ex: ['2023-10', '2023-11']
+                datasets: [{
+                    label: 'Receita (R$)',
+                    data: {{ valores_chart | tojson }},
+                    borderColor: '#009641',
+                    backgroundColor: 'rgba(0, 150, 65, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3, // Curva suave
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // 2. GRÁFICO DE STATUS (PIZZA)
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: {{ chart_labels | tojson }}, // Ex: ['Confirmada', 'Pendente']
+                datasets: [{
+                    data: {{ chart_values | tojson }},
+                    backgroundColor: [
+                        '#198754', // Verde (Confirmada)
+                        '#ffc107', // Amarelo (Pendente)
+                        '#dc3545'  // Vermelho (Cancelada)
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    });
+</script>
+{% endblock %}
