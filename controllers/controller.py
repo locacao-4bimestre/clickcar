@@ -865,43 +865,9 @@ def admin_listar_veiculos():
 # ===========================================================
 
 
-@main.route('/veiculos/<int:id>', methods=["POST", "GET"])
+@main.route('/veiculos/<int:id>', methods=["GET"]) 
 def ver_veiculo(id):
     veiculo = Veiculo.query.get_or_404(id)
-    if request.method == "POST":
-        print("POST")
-        db = SessionLocal()
-        form = request.form
-        if veiculo.status != "disponivel":
-            flash("Desculpe, esse veículo não está disponível")
-            return redirect(url_for("main.ver_veiculo", id=veiculo.id))
-        data_inicio = date.fromisoformat(form.get("data_inicio"))
-        data_fim = date.fromisoformat(form.get("data_fim"))
-        if (isBeforeToday(data_inicio) or not isAfterTheTarget(data_inicio, data_fim)):
-            if not isAfterTheTarget(data_inicio, data_fim):
-                flash(
-                    "Você não pode reservar um carro com uma data de início maior do que a de entrega!", 'info')
-            if isBeforeToday(data_inicio):
-                flash(
-                    "Você não pode realizar uma reserva para um dia anterior ao dia de hoje", 'info')
-            return redirect(url_for("main.ver_veiculo", id=id))
-        if not current_user.is_authenticated:
-            flash("Faça login para reservar um carro! ", 'info')
-            return redirect(url_for("main.ver_veiculo", id=id))
-        nova_reserva = Reserva(
-            user_id=current_user.id,
-            veiculo_id=veiculo.id,
-            data_inicio=data_inicio,
-            data_fim=data_fim,
-            status="pendente",
-            valor_total=calc_valor_total(
-                data_inicio, data_fim, veiculo.preco_por_dia),
-            criado_em=datetime.now()
-        )
-        db.add(nova_reserva)
-        db.commit()
-        flash("Reserva está pendente! Confira em minhas reservas", "success")
-        return redirect(url_for("main.index"))
     return render_template('vehicles/view.html', veiculo=veiculo)
 
 
@@ -1218,3 +1184,86 @@ def error404(e):
 @main.app_errorhandler(403)
 def error403(e):
     return render_template("error/error403.html"), 403
+
+# ===========================================================
+# CHECKOUT E PAGAMENTO (NOVAS ROTAS)
+# ===========================================================
+
+@main.route('/checkout', methods=['POST'])
+@login_required
+def checkout():
+    # 1. Recebe dados do formulário da página view.html
+    veiculo_id = request.form.get('veiculo_id')
+    data_inicio_str = request.form.get('data_inicio')
+    data_fim_str = request.form.get('data_fim')
+
+    # 2. Validações Básicas
+    if not veiculo_id or not data_inicio_str or not data_fim_str:
+        flash("Dados incompletos para o checkout.", "danger")
+        return redirect(url_for('main.index'))
+
+    data_inicio = date.fromisoformat(data_inicio_str)
+    data_fim = date.fromisoformat(data_fim_str)
+    
+    # 3. Validações de Regra de Negócio (Reutilizando sua lógica)
+    if isBeforeToday(data_inicio):
+        flash("Data de início inválida (passado).", "warning")
+        return redirect(url_for('main.ver_veiculo', id=veiculo_id))
+    
+    if not isAfterTheTarget(data_inicio, data_fim):
+        flash("Data final deve ser maior que a data inicial.", "warning")
+        return redirect(url_for('main.ver_veiculo', id=veiculo_id))
+
+    # 4. Busca Veículo e Calcula Total
+    veiculo = Veiculo.query.get_or_404(veiculo_id)
+    if veiculo.status != 'disponivel':
+        flash("Veículo indisponível no momento.", "danger")
+        return redirect(url_for('main.index'))
+
+    valor_total = recalc_valor_diaria(data_inicio, data_fim, veiculo.id)
+    dias = (data_fim - data_inicio).days + 1
+
+    # 5. Renderiza a página de pagamento
+    return render_template('payment/checkout.html', 
+                           veiculo=veiculo, 
+                           total=valor_total, 
+                           dias=dias,
+                           data_inicio=data_inicio, 
+                           data_fim=data_fim)
+
+
+@main.route('/pagamento/processar', methods=['POST'])
+@login_required
+def process_payment():
+    # 1. Recebe dados do checkout.html
+    veiculo_id = request.form.get('veiculo_id')
+    data_inicio = date.fromisoformat(request.form.get('data_inicio'))
+    data_fim = date.fromisoformat(request.form.get('data_fim'))
+    metodo = request.form.get('metodo_pagamento') # 'cartao' ou 'pix'
+
+    # 2. Recalcula o valor (segurança: nunca confiar no valor vindo do HTML)
+    veiculo = Veiculo.query.get_or_404(veiculo_id)
+    valor_total = recalc_valor_diaria(data_inicio, data_fim, veiculo_id)
+
+    # 3. CRIA A RESERVA NO BANCO (Agora sim!)
+    nova_reserva = Reserva(
+        user_id=current_user.id,
+        veiculo_id=veiculo.id,
+        data_inicio=data_inicio,
+        data_fim=data_fim,
+        status="confirmada", # Já nasce confirmada pois "pagou"
+        valor_total=valor_total,
+        criado_em=datetime.now()
+    )
+    
+    db.session.add(nova_reserva)
+    
+    # Opcional: Muda o status do carro para indisponível automaticamente
+    veiculo.status = 'indisponivel' 
+    
+    db.session.commit()
+
+    #4. Envia e-mail (Opcional)
+    send_email_with_id(current_user.id, "Pagamento Confirmado", "Sua reserva foi realizada!")
+
+    return render_template('payment/success.html', reserva=nova_reserva)

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - Pagamento{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4">Finalizar Pagamento 🔒</h2>
+
+    <div class="row g-5">
+        
+        <div class="col-md-7">
+            <div class="card shadow-sm p-4">
+                <h4 class="mb-3">Escolha a forma de pagamento</h4>
+                
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="pills-card-tab" data-bs-toggle="pill" data-bs-target="#pills-card" type="button" role="tab">
+                            <i class="bi bi-credit-card"></i> Cartão de Crédito
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="pills-pix-tab" data-bs-toggle="pill" data-bs-target="#pills-pix" type="button" role="tab">
+                            <i class="bi bi-qr-code"></i> PIX
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                    
+                    <div class="tab-pane fade show active" id="pills-card" role="tabpanel">
+                        <form action="{{ url_for('main.process_payment') }}" method="POST" id="paymentForm">
+                            <input type="hidden" name="veiculo_id" value="{{ veiculo.id }}">
+                            <input type="hidden" name="data_inicio" value="{{ data_inicio }}">
+                            <input type="hidden" name="data_fim" value="{{ data_fim }}">
+                            <input type="hidden" name="metodo_pagamento" value="cartao">
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Nome no Cartão</label>
+                                    <input type="text" class="form-control" placeholder="Como impresso no cartão" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Número do Cartão</label>
+                                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Validade</label>
+                                    <input type="text" class="form-control" placeholder="MM/AA" maxlength="5" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" placeholder="123" maxlength="3" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 btn-lg mt-4 fw-bold">
+                                Pagar R$ {{ total|brl }}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade text-center" id="pills-pix" role="tabpanel">
+                        <h5 class="mt-3">Escaneie o QR Code</h5>
+                        
+
+[Image of QR Code for payment]
+
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" 
+                             alt="QR Code Pix" style="width: 200px; margin: 20px auto;">
+                        <p class="text-muted">A aprovação é imediata.</p>
+                        
+                        <form action="{{ url_for('main.process_payment') }}" method="POST">
+                            <input type="hidden" name="veiculo_id" value="{{ veiculo.id }}">
+                            <input type="hidden" name="data_inicio" value="{{ data_inicio }}">
+                            <input type="hidden" name="data_fim" value="{{ data_fim }}">
+                            <input type="hidden" name="metodo_pagamento" value="pix">
+                            
+                            <button type="submit" class="btn btn-success w-100 btn-lg mt-3 fw-bold">
+                                Já realizei o pagamento
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h4 class="card-title fw-bold mb-4">Resumo do Pedido</h4>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        {% if veiculo.fotos %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ veiculo.fotos[0].filename) }}" 
+                                 class="rounded me-3" width="80" height="60" style="object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ veiculo.modelo }}</h6>
+                            <small class="text-muted">{{ veiculo.marca }} - {{ veiculo.ano }}</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Retirada:</span>
+                        <strong>{{ data_inicio|datebr }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Devolução:</span>
+                        <strong>{{ data_fim|datebr }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Diárias:</span>
+                        <span>{{ dias }} dias</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Valor diária:</span>
+                        <span>R$ {{ veiculo.preco_por_dia|brl }}</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fs-4 fw-bold text-success">
+                        <span>Total:</span>
+                        <span>R$ {{ total|brl }}</span>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <p class="text-muted small">
+                    <i class="bi bi-shield-lock-fill"></i> Ambiente 100% seguro. Seus dados estão protegidos.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
