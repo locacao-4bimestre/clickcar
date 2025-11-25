@@ -19,6 +19,7 @@ from flask import send_file
 from io import BytesIO
 from flask import send_file
 from xhtml2pdf import pisa
+from sqlalchemy import func
 
 database_url = os.environ.get('DATABASE_URL') or \
     'sqlite:///' + os.path.join(basedir, 'locacao.db')
@@ -312,22 +313,33 @@ def verifyToken(token1, token2):
         return True
     return False
 
-
 def create_token(usuario_id):
-    print("Criando")
+    print("Criando token...")
     db = SessionLocal()
     try:
-        token = generate_token(6)
+        token_str = generate_token(6)
+        
         database_token = Token(
-            token=token,
+            token=token_str,
             criado_em=datetime.now(),
             usuario_id=usuario_id
         )
-        print("Criando ...")
-        send_email_with_id(
-            usuario_id, subject="Token - ClickCar", html=f"<p align='center' style='font-size: 15px;'> Seu token de verificação é: </p> <br> <p align='center' style='font-size: 20px;'>{database_token.token} </p> <br> <p style='font-size: 10px;'>* Esse email é automático, por favor não o responda</p>")
-
         db.add(database_token)
+
+        usuario = db.query(Usuario).get(usuario_id)
+        
+        html_content = render_template(
+            'email/token.html', 
+            usuario=usuario, 
+            token=token_str
+        )
+
+        send_email_with_id(
+            usuario_id, 
+            subject="Verifique seu email - ClickCar", 
+            html=html_content
+        )
+
         db.commit()
     except Exception as e:
         print("Não foi possível gerar token", e)
@@ -1239,36 +1251,48 @@ def checkout():
 @main.route('/pagamento/processar', methods=['POST'])
 @login_required
 def process_payment():
-    # 1. Recebe dados do checkout.html
+    # 1. Recebe dados do formulário (checkout.html)
     veiculo_id = request.form.get('veiculo_id')
     data_inicio = date.fromisoformat(request.form.get('data_inicio'))
     data_fim = date.fromisoformat(request.form.get('data_fim'))
-    metodo = request.form.get('metodo_pagamento') # 'cartao' ou 'pix'
-
-    # 2. Recalcula o valor (segurança: nunca confiar no valor vindo do HTML)
+    
+    # 2. Recalcula o valor por segurança
     veiculo = Veiculo.query.get_or_404(veiculo_id)
     valor_total = recalc_valor_diaria(data_inicio, data_fim, veiculo_id)
 
-    # 3. CRIA A RESERVA NO BANCO (Agora sim!)
+    # 3. Cria a reserva no banco
     nova_reserva = Reserva(
         user_id=current_user.id,
         veiculo_id=veiculo.id,
         data_inicio=data_inicio,
         data_fim=data_fim,
-        status="confirmada", # Já nasce confirmada pois "pagou"
+        status="confirmada", 
         valor_total=valor_total,
         criado_em=datetime.now()
     )
     
     db.session.add(nova_reserva)
-    
-    # Opcional: Muda o status do carro para indisponível automaticamente
-    veiculo.status = 'indisponivel' 
-    
-    db.session.commit()
+    db.session.commit() # <--- A reserva é salva aqui
 
-    #4. Envia e-mail (Opcional)
-    send_email_with_id(current_user.id, "Pagamento Confirmado", "Sua reserva foi realizada!")
+    # ==========================================================
+    # PARTE B: ENVIO DE E-MAIL DE CONFIRMAÇÃO (NOVO CÓDIGO)
+    # ==========================================================
+    try:
+        # Renderiza o HTML bonito que criamos
+        html_content = render_template(
+            'email/confirmacao.html', 
+            reserva=nova_reserva
+        )
+        
+        # Envia o e-mail
+        send_email_with_id(
+            current_user.id, 
+            subject=f"Reserva Confirmada #{nova_reserva.id}", 
+            html=html_content
+        )
+        print("E-mail de confirmação enviado com sucesso!")
+    except Exception as e:
+        print("Erro ao enviar email de confirmação:", e)
 
     return render_template('payment/success.html', reserva=nova_reserva)
 
@@ -1306,3 +1330,4 @@ def download_comprovante(reserva_id):
         as_attachment=True,
         mimetype='application/pdf'
     )
+

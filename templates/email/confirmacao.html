@@ -1,0 +1,41 @@
+{% extends "email/base.html" %}
+
+{% block body %}
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #009641; margin: 0;">Pagamento Confirmado! 🎉</h2>
+    <p style="font-size: 16px; color: #555;">Sua reserva #{{ reserva.id }} foi realizada com sucesso.</p>
+</div>
+
+<hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+<h3 style="color: #333;">Detalhes da Reserva</h3>
+
+<table width="100%" style="margin-bottom: 20px;">
+    <tr>
+        <td style="padding: 8px 0; color: #555;"><strong>Veículo:</strong></td>
+        <td style="padding: 8px 0; text-align: right;">{{ reserva.veiculo.modelo }} - {{ reserva.veiculo.marca }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 0; color: #555;"><strong>Retirada:</strong></td>
+        <td style="padding: 8px 0; text-align: right;">{{ reserva.data_inicio.strftime('%d/%m/%Y') }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 0; color: #555;"><strong>Devolução:</strong></td>
+        <td style="padding: 8px 0; text-align: right;">{{ reserva.data_fim.strftime('%d/%m/%Y') }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 0; color: #555; font-size: 18px;"><strong>Total Pago:</strong></td>
+        <td style="padding: 8px 0; text-align: right; font-size: 18px; color: #009641; font-weight: bold;">
+            R$ {{ "%.2f"|format(reserva.valor_total)|replace('.', ',') }}
+        </td>
+    </tr>
+</table>
+
+<div style="text-align: center; margin-top: 30px;">
+    <p style="color: #555; margin-bottom: 20px;">Apresente seu documento (CNH) na retirada do veículo.</p>
+    
+    <a href="{{ url_for('main.customer_rentals', user_id=reserva.user_id, _external=True) }}" class="btn">
+        Ver Minhas Reservas
+    </a>
+</div>
+{% endblock %}

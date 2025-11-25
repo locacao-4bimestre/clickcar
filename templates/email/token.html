@@ -1,0 +1,22 @@
+{% extends "email/base.html" %}
+
+{% block body %}
+<h2 style="color: #333; margin-top: 0;">Confirme seu cadastro 🔒</h2>
+<p style="font-size: 16px; color: #555; line-height: 1.5;">
+    Olá, <strong>{{ usuario.nome }}</strong>!
+</p>
+<p style="font-size: 16px; color: #555; line-height: 1.5;">
+    Obrigado por se cadastrar na ClickCar. Para garantir a segurança da sua conta, use o código abaixo para validar seu e-mail:
+</p>
+
+<div style="background-color: #f8f9fa; border: 2px dashed #009641; padding: 20px; text-align: center; margin: 25px 0; border-radius: 8px;">
+    <span style="display: block; font-size: 14px; color: #777; margin-bottom: 5px;">SEU CÓDIGO DE VERIFICAÇÃO:</span>
+    <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #009641;">
+        {{ token }}
+    </span>
+</div>
+
+<p style="font-size: 14px; color: #999;">
+    Este código expira em 3 minutos. Se você não solicitou este cadastro, ignore este e-mail.
+</p>
+{% endblock %}

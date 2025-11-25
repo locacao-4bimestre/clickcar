@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickCar</title>
+    <style>
+        /* Estilos inline básicos para compatibilidade com clientes de email */
+        body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f4f4f4; padding-bottom: 40px; }
+        .main-table { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; font-family: sans-serif; color: #333333; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background-color: #009641; padding: 25px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        .content { padding: 30px; }
+        .footer { background-color: #333333; padding: 20px; text-align: center; color: #888888; font-size: 12px; }
+        .footer a { color: #8fce00; text-decoration: none; }
+        .btn { display: inline-block; padding: 12px 24px; background-color: #009641; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        .btn:hover { background-color: #007c37; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <table class="main-table" align="center">
+            <tr>
+                <td class="header">
+                    <h1>ClickCar</h1>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="content">
+                    {% block body %}{% endblock %}
+                </td>
+            </tr>
+
+            <tr>
+                <td class="footer">
+                    <p>ClickCar Locadora de Veículos<br>Sua liberdade começa aqui.</p>
+                    <p>Este é um e-mail automático, por favor não responda.</p>
+                    <p><a href="#">Termos de Uso</a> | <a href="#">Privacidade</a></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
