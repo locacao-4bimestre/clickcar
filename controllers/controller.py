@@ -675,56 +675,63 @@ def register():
         nome = request.form['nome']
         email = request.form['email']
         telefone = request.form['telefone']
-        cpf = request.form['cpf']  # PEGANDO CPF
+        cpf = request.form['cpf']
+        
         senha = request.form['senha']
+        confirmar_senha = request.form['confirmar_senha']
+
+        # 1. Validação de Senhas
+        if senha != confirmar_senha:
+            flash("As senhas não coincidem!", "warning")
+            return redirect(url_for('main.register'))
 
         user = Usuario.query.filter_by(email=email).first()
-        # Verificar email duplicado
         if user:
             if not user.email_verificado:
-                flash("Esse email já está cadastrado. Verifique-o ", "warning")
+                flash("Esse email já está cadastrado. Verifique-o.", "warning")
                 return redirect(url_for('main.verify_user_email', user_id=user.id))
-            flash("Esse email já está cadastrado. Logue em sua conta", "warning")
+            flash("Esse email já está cadastrado. Faça login.", "warning")
             return redirect(url_for('main.login'))
 
         perfil_cliente = Perfil.query.filter_by(nome_perfil="Cliente").first()
+        
         senha_validada = validate_password(senha)
         email_valido = is_valid_email(email)
         cpf_valido = is_valid_cpf(cpf)
         telefone_valido = is_valid_telefone(telefone)
+
         if (not senha_validada or not email_valido or not cpf_valido or not telefone_valido):
             if not senha_validada:
-                flash(
-                    "A senha precisa conter ao menos 8 digítos um caractere especial, uma letra normal e um número", "warning")
+                flash("A senha precisa conter ao menos 8 dígitos, um caractere especial, uma letra e um número", "warning")
             if not email_valido:
-                flash(
-                    "Email inválido", 'warning')
+                flash("Email inválido", 'warning')
             if not cpf_valido:
-                flash("Cpf inválido ", 'warning')
+                flash("CPF inválido", 'warning')
             if not telefone_valido:
-                flash("Telefone inválido, use 11 9XXXX-XXXX ou 11 XXXX-XXXX", 'warning')
+                flash("Telefone inválido", 'warning')
             return redirect(url_for("main.register"))
+
+
         novo = Usuario(
             nome=nome,
             email=email,
             telefone=telefone,
-            cpf=cpf,   # SALVANDO CPF
+            cpf=cpf,
             senha_hash=generate_password_hash(senha),
             perfil_id=perfil_cliente.id,
-            email_verificado=False,      # como não tem verificação por email
+            email_verificado=False,
             codigo_verificacao=None
         )
 
         db.session.add(novo)
         db.session.commit()
-        user_id = novo.id
-        create_token(user_id)
-        flash("Conta criada com sucesso!", "success")
-        print("indo para a verificacao... ")
-        return redirect(url_for('main.verify_user_email', user_id=user_id))
+
+        create_token(novo.id)
+        
+        flash("Conta criada com sucesso! Verifique seu e-mail.", "success")
+        return redirect(url_for('main.verify_user_email', user_id=novo.id))
 
     return render_template('auth/register.html')
-
 
 @main.route("/email-test")
 def email_test():

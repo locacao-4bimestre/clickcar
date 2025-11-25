@@ -2,44 +2,79 @@
 {% block title %}Criar Conta{% endblock %}
 
 {% block content %}
-<div class="w-50 mx-auto bg-white p-4 rounded shadow-sm">
-
+<div class="w-50 mx-auto bg-white p-4 rounded shadow-sm mb-5">
     <h2 class="fw-bold mb-4 text-center">Criar Conta</h2>
-
+    
     <form method="POST" action="{{ url_for('main.register') }}">
-
+        
         <div class="mb-3">
-            <label class="form-label">Nome</label>
+            <label class="form-label fw-bold">Nome Completo</label>
             <input type="text" name="nome" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Email</label>
+            <label class="form-label fw-bold">E-mail</label>
             <input type="email" name="email" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Telefone</label>
-            <input type="text" name="telefone" class="form-control">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Telefone</label>
+                <input type="text" name="telefone" class="form-control" placeholder="(11) 99999-9999">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">CPF</label>
+                <input type="text" name="cpf" class="form-control" placeholder="000.000.000-00">
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">CPF</label>
-            <input type="text" name="cpf" class="form-control">
-        </div>
-
 
         <div class="mb-3">
-            <label class="form-label">Senha</label>
-            <input type="password" name="senha" class="form-control" required>
+            <label class="form-label fw-bold">Senha</label>
+            <div class="input-group">
+                <input type="password" name="senha" id="senha" class="form-control" required>
+                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('senha', 'icon-senha')">
+                    <i class="bi bi-eye" id="icon-senha"></i>
+                </button>
+            </div>
+            <div class="form-text text-muted small">
+                Mínimo 8 caracteres, letras, números e símbolo.
+            </div>
         </div>
 
-        <button class="btn btn-primary w-100">Criar Conta</button>
+        <div class="mb-4">
+            <label class="form-label fw-bold">Confirmar Senha</label>
+            <div class="input-group">
+                <input type="password" name="confirmar_senha" id="confirmar_senha" class="form-control" required>
+                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmar_senha', 'icon-confirmar')">
+                    <i class="bi bi-eye" id="icon-confirmar"></i>
+                </button>
+            </div>
+        </div>
 
+        <button class="btn btn-primary w-100 fw-bold py-2">Criar Conta</button>
+        
         <p class="text-center mt-3">
             Já tem uma conta?
-            <a href="{{ url_for('main.login') }}">Entrar</a>
+            <a href="{{ url_for('main.login') }}" class="text-decoration-none fw-bold">Entrar</a>
         </p>
     </form>
 </div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    }
+</script>
 {% endblock %}
