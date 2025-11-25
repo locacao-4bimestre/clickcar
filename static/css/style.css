@@ -1,3 +1,8 @@
+.content-box{
+    min-height: 50vh;
+}
+
+
 /* FOOTER */
 .footer {
     background: #222;
@@ -65,10 +70,11 @@
     border: none;
 }
 
+<<<<<<< Updated upstream
+
 /* 
 flash messages:
 */
-
 /* FLASH MESSAGES */
 .flash-message {
     padding: 14px 18px;
@@ -79,26 +85,27 @@ flash messages:
     animation: fadeInDown 0.4s ease-out;
 }
 
-/* Sucesso */
+/* Sucesso — verde padrão */
 .flash-success {
-    background-color: var(--primary-green);
+    background-color: #1e7e34; /* verde escuro */
 }
 
-/* Erro */
+/* Erro — verde intenso */
 .flash-error {
-    background-color: #d9534f;
+    background-color: #28a745; /* verde médio forte */
 }
 
-/* Aviso */
+/* Aviso — verde claro */
 .flash-warning {
-    background-color: var(--yellow);
-    color: #333;
+    background-color: #8fce00; /* verde claro vibrante */
+    color: #1a1a1a; /* melhor contraste */
 }
 
-/* Informação */
+/* Informação — verde suave */
 .flash-info {
-    background-color: #0275d8;
+    background-color: #5cb85c; /* verde suave */
 }
+
 
 /* Animação */
 @keyframes fadeInDown {
@@ -111,7 +118,7 @@ flash messages:
         transform: translateY(0);
     }
 }
-
+=======
 .promo-bar {
     width: 100%;
     background: #000;
@@ -151,30 +158,5 @@ flash messages:
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+>>>>>>> Stashed changes
 
-/* --------- MODO ESCURO --------- */
-
-body.dark-mode {
-    background-color: #121212;
-    color: #f1f1f1;
-}
-
-body.dark-mode .navbar {
-    background-color: #000 !important;
-}
-
-body.dark-mode .card,
-body.dark-mode .bg-white,
-body.dark-mode .table {
-    background-color: #1e1e1e !important;
-    color: #f1f1f1;
-}
-
-body.dark-mode .footer {
-    background-color: #000;
-}
-
-body.dark-mode .nav-link,
-body.dark-mode .navbar-brand {
-    color: #f1f1f1 !important;
-}

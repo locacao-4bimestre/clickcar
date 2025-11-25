@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %} Página não encontrada {% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Página não encontrada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/404.css') }}">
+</head>
+<body class="error404-body">
+    <div class="error404-container">
+        <h1 class="error404-title">404</h1>
+        <p class="error404-message">A página que você procura não foi encontrada.</p>
+        <a href="/" class="error404-button">Voltar para a página inicial</a>
+    </div>
+</body>
+</html>
+
+
+{% endblock %}

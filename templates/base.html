@@ -7,11 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
+
+    <style>
+        :root {
+            --primary-green: #009641;
+            --yellow: #8db600;
+            --light-gray: #F4F4F4;
+            --dark: #333;
+        }
+
+        body {
+            background-color: var(--light-gray);
+        }
+
+        .navbar {
+            background-color: var(--primary-green) !important;
+        }
+
+        .navbar-brand, .nav-link, .navbar-text {
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-green);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #007c37;
+        }
+
+        .btn-warning {
+            background-color: var(--yellow);
+            color: black;
+            border: none;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--dark);
+            color: white;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="promo-bar" data-i18n="promo_text">
+<div class="promo-bar">
     ESQUENTA BLACK FRIDAY — OFERTAS EXCLUSIVAS POR TEMPO LIMITADO!
 </div>
 
@@ -31,52 +81,42 @@
             <ul class="navbar-nav ms-auto align-items-center">
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.listar_veiculos') }}" data-i18n="nav_vehicles">
-                        Veículos
-                    </a>
+                    <a data-i18n="vehicles" class="nav-link nav-prof" href="{{ url_for('main.listar_veiculos') }}">Veículos</a>
                 </li>
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.requisitos') }}" data-i18n="nav_requirements">
-                        Requisitos
-                    </a>
+                    <a data-i18n="requirements" class="nav-link nav-prof" href="{{ url_for('main.requisitos') }}">Requisitos</a>
                 </li>
 
                 <li class="nav-item mx-2">
-                    <a class="nav-link nav-prof" href="{{ url_for('main.faq') }}" data-i18n="nav_faq">
-                        FAQ
-                    </a>
-                </li>
+                    <a data-i18n="faq" class="nav-link nav-prof" href="{{ url_for('main.faq') }}">FAQ</a>
+                </li> 
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="accessibilityMenu" role="button" data-bs-toggle="dropdown" data-i18n="accessibility">
+                    <a data-i18n="accessibility" class="nav-link dropdown-toggle" href="#" id="accessibilityMenu" role="button" data-bs-toggle="dropdown">
                         Acessibilidade
                     </a>
-
                     <ul class="dropdown-menu dropdown-menu-end p-2">
 
                         <li>
-                            <button class="dropdown-item" id="increaseFont" data-i18n="increase_font">Aumentar letra</button>
+                            <button data-i18n="increase_font" class="dropdown-item" id="increaseFont">Aumentar letra</button>
                         </li>
 
                         <li>
-                            <button class="dropdown-item" id="decreaseFont" data-i18n="decrease_font">Diminuir letra</button>
-                        </li>
-
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <button class="dropdown-item" id="toggleDarkMode" data-i18n="dark_mode">Ativar modo escuro</button>
+                            <button data-i18n="decrease_font" class="dropdown-item" id="decreaseFont">Diminuir letra</button>
                         </li>
 
                         <li><hr class="dropdown-divider"></li>
 
                         <li>
-                            <button class="dropdown-item" id="toggleLanguage" data-i18n="toggle_language">Switch to English</button>
+                            <button data-i18n="dark_mode" class="dropdown-item" id="toggleDarkMode">Alternar modo escuro</button>
                         </li>
 
+
                         <li>
-                            <button class="dropdown-item" id="resetAccessibility" data-i18n="reset_settings">Resetar</button>
+                            <button data-i18n="reset" class="dropdown-item text-danger fw-bold" id="resetAccessibility">
+                                Restaurar Padrão
+                            </button>
                         </li>
                     </ul>
                 </li>
@@ -85,7 +125,7 @@
 
                     {% if current_user.perfil.nome_perfil == 'Cliente' %}
                     <li class="nav-item mx-2">
-                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.customer_dashboard') }}" data-i18n="my_area">
+                        <a data-i18n="my_area" class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.customer_dashboard') }}">
                             Minha Área
                         </a>
                     </li>
@@ -93,32 +133,34 @@
 
                     {% if current_user.perfil.nome_perfil == 'Admin' %}
                     <li class="nav-item dropdown mx-2">
-                        <a class="nav-link dropdown-toggle nav-prof" href="#" role="button" data-bs-toggle="dropdown" data-i18n="admin">
+                        <a data-i18n="admin" class="nav-link dropdown-toggle nav-prof" href="#" role="button" data-bs-toggle="dropdown">
                             Admin
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}" data-i18n="admin_vehicles">Veículos</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.novo_tipo') }}" data-i18n="admin_types">Tipos</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}" data-i18n="admin_clients">Clientes</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_veiculos') }}">Veículos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.novo_tipo') }}">Tipos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_listar_clientes') }}">Clientes</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_usuario_page') }}">Usuários</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.listar_reservas') }}">Reservas</a></li>
                         </ul>
                     </li>
                     {% endif %}
 
                     <li class="nav-item mx-2">
-                        <a class="btn btn-outline-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.logout') }}" data-i18n="logout">
+                        <a data-i18n="logout" class="btn btn-outline-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.logout') }}">
                             Sair
                         </a>
                     </li>
 
                 {% else %}
                     <li class="nav-item mx-2">
-                        <a class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.login') }}" data-i18n="login">
+                        <a data-i18n="login" class="btn btn-light rounded-pill px-3 fw-semibold" href="{{ url_for('main.login') }}">
                             Login
                         </a>
                     </li>
 
                     <li class="nav-item mx-2">
-                        <a class="btn btn-warning rounded-pill px-3 fw-semibold" href="{{ url_for('main.register') }}" data-i18n="register">
+                        <a data-i18n="create_account" class="btn btn-warning rounded-pill px-3 fw-semibold" href="{{ url_for('main.register') }}">
                             Criar Conta
                         </a>
                     </li>
@@ -141,7 +183,7 @@
     {% endwith %}
 </div>
 
-<div class="container mt-4">
+<div class="container content-box mt-4">
     {% block content %}{% endblock %}
 </div>
 
@@ -149,43 +191,71 @@
     <div class="container py-4">
 
         <div class="row text-center text-md-start">
-
+ 
             <div class="col-md-4 mb-4">
                 <h4 class="fw-bold text-white">ClickCar</h4>
-                <p class="text-light" data-i18n="footer_about">
+                <p class="text-light">
                     Sua liberdade começa aqui.  
                     Encontre o veículo ideal e viaje sem limites.
                 </p>
             </div>
 
+
             <div class="col-md-4 mb-4">
-                <h5 class="fw-bold text-white mb-3" data-i18n="navigation">Navegação</h5>
+                <h5 class="fw-bold text-white mb-3">Navegação</h5>
                 <ul class="list-unstyled">
-                    <li><a href="{{ url_for('main.index') }}" class="footer-link" data-i18n="home">Home</a></li>
-                    <li><a href="{{ url_for('main.listar_veiculos') }}" class="footer-link" data-i18n="vehicles">Veículos</a></li>
-                    <li><a href="{{ url_for('main.requisitos') }}" class="footer-link" data-i18n="rent_requirements">Requisitos para Locação</a></li>
-                    <li><a href="{{ url_for('main.faq') }}" class="footer-link" data-i18n="faq">Dúvidas Frequentes</a></li>
+                    <li><a href="{{ url_for('main.index') }}" class="footer-link">Home</a></li>
+                    <li><a data-i18n="vehicles" href="{{ url_for('main.listar_veiculos') }}" class="footer-link">Veículos</a></li>
+                    <li><a data-i18n="requirements" href="{{ url_for('main.requisitos') }}" class="footer-link">Requisitos para Locação</a></li>
+                    <li><a data-i18n="faq" href="{{ url_for('main.faq') }}" class="footer-link">Dúvidas Frequentes</a></li>
                 </ul>
             </div>
 
             <div class="col-md-4 mb-4">
-                <h5 class="fw-bold text-white mb-3" data-i18n="contact_us">Fale Conosco</h5>
-                <p class="text-light mb-2" data-i18n="support_hours">Atendimento de segunda a sábado</p>
+                <h5 class="fw-bold text-white mb-3">Fale Conosco</h5>
+                <p class="text-light mb-2">Atendimento de segunda a sábado</p>
                 <p class="text-light"><strong>WhatsApp:</strong> (11) 90000-0000</p>
+
+                <div class="d-flex gap-3 justify-content-center justify-content-md-start mt-3">
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-whatsapp"></i></a>
+                </div>
             </div>
 
         </div>
 
         <hr class="text-light">
 
-        <p class="text-center text-light mb-0" data-i18n="copyright">
-            ©️ 2025 ClickCar Locadora — Todos os direitos reservados.
+        <p class="text-center text-light mb-0">
+            © 2025 ClickCar Locadora — Todos os direitos reservados.
         </p>
 
     </div>
 </footer>
 
+<div id="chat-button">💬</div>
+
+<div id="chat-window">
+    <div class="chat-header">
+        Suporte ClickCar
+        <span id="chat-close">&times;</span>
+    </div>
+
+    <div class="chat-body">
+        <p class="text-light">Olá, eu sou a gemini do GOOGLE, como posso te ajudar?</p>
+    </div>
+
+    <div class="chat-footer">
+        
+        <input type="text" id="chat-input" class="form-control" placeholder="Digite uma mensagem...">
+        <button id="chat-send">Enviar</button>
+
+    </div>
+</div>
+<script src="{{ url_for('static',filename='js/chat.js') }}"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-</html> 
+</html>

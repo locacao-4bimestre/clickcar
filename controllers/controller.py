@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 import os
 import string
@@ -6,12 +7,12 @@ import secrets
 from flask_mail import Message
 from sqlalchemy import create_engine, text
 from werkzeug.utils import secure_filename
-from flask import Blueprint, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
+from flask import Blueprint, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app as app
 from models.models import db, Usuario, Perfil, Veiculo, TipoVeiculo, Cliente, VehiclePhoto, Token, Reserva
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import sessionmaker, scoped_session
-from extensions import mail, basedir
+from extensions import mail, basedir, gemini, types
 from datetime import date, datetime
 
 
@@ -30,6 +31,208 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 # ===================================
 # Funções utilitárias
 # ===================================
+
+
+def format_brl(value):
+    try:
+        # Converte para float
+        number = float(value)
+    except:
+        return "0,00"
+
+    # Formato americano com thousand separator
+    formatted = f"{number:,.2f}"  # exemplo -> "1,234,567.89"
+
+    # Quebra em parte inteira e decimal
+    inteiro, decimal = formatted.split(".")
+
+    # Troca milhar: "," → "."
+    inteiro = inteiro.replace(",", ".")
+
+    # Junta no formato brasileiro
+    return f"{inteiro},{decimal}"
+
+
+def brl(value):
+    return format_brl(value)
+
+
+main.add_app_template_filter(brl, 'brl')
+
+
+def datebr(value):
+    return value.strftime('%d/%m/%Y %H:%M')
+
+
+main.add_app_template_filter(datebr, 'datebr')
+
+
+def _only_digits(s: str) -> str:
+    return re.sub(r'\D', '', s or '')
+
+
+# Regex para telefone brasileiro (formato ou só dígitos)
+_RE_TELEFONE = re.compile(
+    r"""
+    ^                         # início
+    (?:\(?\d{2}\)?[\s-]?)?    # DDD opcional: (11) ou 11 ou 11- ou 11 espaço
+    (?:9\d{4}|\d{4})[-]?\d{4}$ # celular com 9 (9xxxx xxxx) ou fixo (xxxx xxxx)
+    """,
+    re.VERBOSE
+)
+
+
+def is_valid_telefone(tel: str) -> bool:
+    """
+    Valida telefone fixo e celular brasileiros.
+    Aceita:
+    - (11) 91234-5678
+    - 11 91234-5678
+    - 11912345678
+    - (11) 2345-6789
+    - 1123456789
+    """
+    if not tel:
+        return False
+
+    digits = re.sub(r"\D", "", tel)
+
+    # Verifica tamanho: fixo (10) ou celular (11)
+    if len(digits) not in (10, 11):
+        return False
+
+    # Se for celular (11 dígitos), precisa começar com 9
+    if len(digits) == 11 and digits[2] != "9":
+        return False
+
+    # Se for fixo (10 dígitos), NÃO pode começar com 9
+    if len(digits) == 10 and digits[2] == "9":
+        return False
+
+    return bool(_RE_TELEFONE.match(tel.strip()))
+
+
+# -----------------------
+# CPF: formato e checksum
+
+
+def is_valid_cpf(cpf: str) -> bool:
+    """
+    Valida CPF:
+    - aceita formatos com ou sem pontuação: 123.456.789-09 ou 12345678909
+    - verifica tamanho, sequências óbvias (todos dígitos iguais) e dígitos verificadores
+    """
+    if not cpf:
+        return False
+    cpf = _only_digits(cpf)
+    if len(cpf) != 11:
+        return False
+    # rejeita sequências como 11111111111
+    if cpf == cpf[0] * 11:
+        return False
+
+    def _calc_digit(digs: str) -> str:
+        soma = 0
+        peso = len(digs) + 1
+        for ch in digs:
+            soma += int(ch) * peso
+            peso -= 1
+        resto = soma % 11
+        return '0' if resto < 2 else str(11 - resto)
+
+    dv1 = _calc_digit(cpf[:9])
+    dv2 = _calc_digit(cpf[:9] + dv1)
+    return cpf[-2:] == dv1 + dv2
+
+
+# -----------------------
+# CEP (Correios): 5 dígitos + hífen + 3 dígitos ou 8 dígitos juntos
+_RE_CEP = re.compile(r'^\d{5}-?\d{3}$')
+
+
+def is_valid_cep(cep: str) -> bool:
+    """
+    Valida CEP no formato 12345-678 ou 12345678
+    """
+    if not cep:
+        return False
+    return bool(_RE_CEP.match(cep.strip()))
+
+
+# -----------------------
+# CNH: validar formato (11 dígitos) + rejeita sequências repetidas
+# Nota: validação completa exige cálculo de dígitos segundo regra específica da CNH.
+_RE_CNH = re.compile(r'^\d{11}$')
+
+
+def is_valid_cnh(cnh: str) -> bool:
+    """
+    Validação básica de CNH:
+    - aceita somente 11 dígitos
+    - rejeita sequências de dígitos idênticos (ex: 11111111111)
+    """
+    if not cnh:
+        return False
+    c = _only_digits(cnh)
+    if not _RE_CNH.match(c):
+        return False
+    if c == c[0] * 11:
+        return False
+    # Observação: validação completa da CNH envolve os dígitos verificadores usados pelo Detran.
+    # Se quiser, posso implementar a checagem completa (requer confirmação do algoritmo desejado).
+    return True
+
+
+# -----------------------
+# Email: regex prática (não 100% RFC5322, mas cobre a vasta maioria de casos)
+_RE_EMAIL = re.compile(r'^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$')
+
+
+def is_valid_email(email: str) -> bool:
+    """
+    Valida email com regex prática:
+    - parte local: letras, números, . _ % + -
+    - domínio: letras/números e hífen, com ao menos um ponto e TLD com 2+ letras
+    """
+    if not email:
+        return False
+    return bool(_RE_EMAIL.match(email.strip()))
+
+
+# -----------------------
+# RG: variações por estado — aqui aceitamos 7 a 9 dígitos ou com pontuação (ex.: 12.345.678-9)
+_RE_RG = re.compile(r'^\d{7,9}$')
+_RE_RG_FORMATADO = re.compile(r'^\d{1,2}\.?\d{3}\.?\d{3}-?\d?$')
+
+
+def is_valid_rg(rg: str) -> bool:
+    """
+    Validação básica de RG:
+    - aceita 7 a 9 dígitos (após remover não-dígitos)
+    - aceita formatos comuns com pontos/hífens
+    Observação: RG oficial pode incluir letra (em poucos estados) ou regras regionais.
+    """
+    if not rg:
+        return False
+    only = _only_digits(rg)
+    if 7 <= len(only) <= 9:
+        return True
+    # fallback: verificar formato com regex que aceita pontuação
+    return bool(_RE_RG_FORMATADO.match(rg.strip()))
+
+
+# lógica de negócios
+
+def isBeforeToday(date):
+    if not date:
+        return True
+    return date < datetime.now().date()
+
+
+def isAfterTheTarget(target, date):
+    if not date or not target:
+        return False
+    return date > target
 
 
 def validate_password(password: str):
@@ -192,11 +395,58 @@ def customer_edit_profile():
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':
+        email = request.form['email']
+        telefone = request.form['telefone']
+        endereco = request.form['endereco']
+
+        cnh = request.form.get("cnh")
+
+        if email != current_user.email:
+            user = Usuario.query.filter_by(email=email).first()
+            # Verificar email duplicado
+            if user:
+                if not user.email_verificado:
+                    flash("Esse email já está cadastrado. Verifique-o ", "warning")
+                    return redirect(url_for('main.verify_user_email', user_id=user.id))
+                flash("Esse email já está cadastrado. Logue em sua conta", "warning")
+                return redirect(url_for('main.login'))
+
+        perfil_cliente = Perfil.query.filter_by(nome_perfil="Cliente").first()
+
+        email_valido = is_valid_email(email)
+        cnh_valida = is_valid_cnh(cnh)
+        telefone_valido = is_valid_telefone(telefone)
+        if (not cnh_valida or not telefone_valido or not email_valido):
+            if not telefone_valido:
+                flash("Telefone inválido, use 11 9XXXX-XXXX ou 11 XXXX-XXXX", 'warning')
+            if not cnh_valida:
+                flash("CNH inválida", 'warning')
+            if not email_valido:
+                flash(
+                    "Email inválido", 'warning')
+            return redirect(url_for("main.customer_edit_profile"))
+
         current_user.nome = request.form['nome']
-        current_user.email = request.form['email']
+
         current_user.telefone = request.form.get('telefone')
         current_user.endereco = request.form.get('endereco')
         current_user.cnh = request.form.get("cnh")
+        print(current_user.email, email, current_user.email != email)
+        if email != current_user.email:
+
+            current_user.email_verificado = False
+            user = Usuario.query.filter_by(email=email).first()
+            # Verificar email duplicado
+            if user:
+                if not user.email_verificado:
+                    flash("Esse email já está cadastrado. Verifique-o ", "warning")
+                    return redirect(url_for('main.verify_user_email', user_id=user.id))
+                flash("Esse email já está cadastrado. Logue em sua conta", "warning")
+                return redirect(url_for('main.login'))
+            current_user.email = request.form['email']
+            db.session.commit()
+            flash("Dados atualizados, verifique seu email!", 'info')
+            return redirect(url_for('main.verify_user_email', user_id=current_user.id))
         db.session.commit()
         flash("Dados atualizados com sucesso!", "success")
         return redirect(url_for('main.customer_profile'))
@@ -297,9 +547,20 @@ def register():
 
         perfil_cliente = Perfil.query.filter_by(nome_perfil="Cliente").first()
         senha_validada = validate_password(senha)
-        if not senha_validada:
-            flash(
-                "A senha precisa conter ao menos 8 digítos um caractere especial, uma letra normal e um número", "warning")
+        email_valido = is_valid_email(email)
+        cpf_valido = is_valid_cpf(cpf)
+        telefone_valido = is_valid_telefone(telefone)
+        if (not senha_validada or not email_valido or not cpf_valido or not telefone_valido):
+            if not senha_validada:
+                flash(
+                    "A senha precisa conter ao menos 8 digítos um caractere especial, uma letra normal e um número", "warning")
+            if not email_valido:
+                flash(
+                    "Email inválido", 'warning')
+            if not cpf_valido:
+                flash("Cpf inválido ", 'warning')
+            if not telefone_valido:
+                flash("Telefone inválido, use 11 9XXXX-XXXX ou 11 XXXX-XXXX", 'warning')
             return redirect(url_for("main.register"))
         novo = Usuario(
             nome=nome,
@@ -369,8 +630,10 @@ def new_token(user_id):
 @main.route('/logout')
 @login_required
 def logout():
+    resp = make_response(redirect(url_for("main.index")))
+    resp.delete_cookie("cliente_id")
     logout_user()
-    return redirect(url_for('main.index'))
+    return resp
 
 
 # =====================
@@ -452,18 +715,19 @@ def edit_reserva(id):
         form = request.form
         user_id = form.get("user")
         veiculo_id = form.get("veiculo")
-        data_inicio = form.get("data_inicio")
-        data_fim = form.get("data_fim")
+        data_inicio = date.fromisoformat(form.get("data_inicio"))
+        data_fim = date.fromisoformat(form.get("data_fim"))
         status = form.get("status")
+        print(status)
         reserva.user_id = user_id
         reserva.veiculo_id = veiculo_id
-        reserva.data_inicio = data_inicio
-        reserva.data_fim = data_fim
+        reserva.data_inicio = (data_inicio)
+        reserva.data_fim = (data_fim)
         reserva.status = status
         reserva.valor_total = recalc_valor_diaria(
             data_inicio, data_fim, veiculo_id)
         db.commit()
-        flash("Reserva editada! ")
+        flash("Reserva editada! ", 'success')
         return redirect(url_for("main.edit_reserva", id=id))
     return render_template("admin/rentals/edit.html", reserva=reserva, statuses=statuses)
 
@@ -613,8 +877,19 @@ def ver_veiculo(id):
             return redirect(url_for("main.ver_veiculo", id=veiculo.id))
         data_inicio = date.fromisoformat(form.get("data_inicio"))
         data_fim = date.fromisoformat(form.get("data_fim"))
+        if (isBeforeToday(data_inicio) or not isAfterTheTarget(data_inicio, data_fim)):
+            if not isAfterTheTarget(data_inicio, data_fim):
+                flash(
+                    "Você não pode reservar um carro com uma data de início maior do que a de entrega!", 'info')
+            if isBeforeToday(data_inicio):
+                flash(
+                    "Você não pode realizar uma reserva para um dia anterior ao dia de hoje", 'info')
+            return redirect(url_for("main.ver_veiculo", id=id))
+        if not current_user.is_authenticated:
+            flash("Faça login para reservar um carro! ", 'info')
+            return redirect(url_for("main.ver_veiculo", id=id))
         nova_reserva = Reserva(
-            user_id=logged_cliente(),
+            user_id=current_user.id,
             veiculo_id=veiculo.id,
             data_inicio=data_inicio,
             data_fim=data_fim,
@@ -876,3 +1151,70 @@ def token_time(user_id):
         'min': str(int(resp['min'])),
         'sec': str(int(resp['sec']))
     })
+
+
+# simulação:
+@main.route("/api/simulação", methods=["POST", "GET"])
+def get_simulacao():
+    db = SessionLocal()
+    data = request.get_json()
+    inicio = date.fromisoformat(data['inicio'])
+    fim = date.fromisoformat(data['fim'])
+    veiculo = db.query(Veiculo).filter_by(id=data['veiculo_id']).first()
+    if not veiculo or not fim or not inicio:
+        return jsonify({
+            'status': '404',
+            'msg': 'Algo aconteceu, provavelmente um campo faltando'
+        })
+    if isBeforeToday(inicio) or isBeforeToday(fim):
+        return jsonify({
+            'status': '404',
+            'msg': 'Você não pode reservar um carro para um dia anterior ao dia de hoje!'
+        })
+    if not isAfterTheTarget(inicio, fim):
+        return jsonify({
+            'status': '404',
+            'msg': 'Você não pode reservar um carro com uma data de início maior do que a de entrega!'
+        })
+    else:
+        return jsonify({
+            'status': '200',
+            'valor': recalc_valor_diaria(inicio, fim, veiculo.id)
+        })
+
+
+@main.route("/api/chatbot", methods=['POST', 'GET'])
+def bot_msg():
+    data = request.get_json()
+    print(data)
+    email_verificado = False
+    if current_user.is_authenticated:
+        if current_user.email_verificado:
+            email_verificado = True
+    print(current_user.is_authenticated)
+    response = gemini.models.generate_content(
+        model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(
+            system_instruction=f"""Você está em um site de locadora ajudando um cliente, no geral ajude ele a explorar o site, indicando ele ir para aba de carros, minhas reservas, fazer login caso nao tenha feito, verificar o email se precisar etc." \
+            ou caso seja uma duvida diferente tente falar com ele, siga as regras: Não pule linhas entre paragrafos, mande uma mensagem curta e sem 
+            textos diferentes como negrito e itálico, contexto: Usuario está logado? : {'sim' if current_user.is_authenticated else 'nao'}, {(f"Ele possui email_verificado: {'sim' if email_verificado else 'não'}") if current_user.is_authenticated else ""}"""),
+        contents=data["text"]
+    )
+    print(response.text)
+    return jsonify({
+        'ai': 'gemini',
+        'model': '2.5',
+        'text': response.text
+    })
+
+
+# Error handlers
+
+@main.app_errorhandler(404)
+def error404(e):
+    return render_template("error/error404.html"), 404
+
+
+@main.app_errorhandler(403)
+def error403(e):
+    return render_template("error/error403.html"), 403
