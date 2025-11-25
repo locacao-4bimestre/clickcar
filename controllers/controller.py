@@ -1461,3 +1461,33 @@ def reset_password(token):
         return redirect(url_for('main.login'))
 
     return render_template('auth/reset_password.html')
+
+# ===========================================================
+# EXCLUIR CONTA (CLIENTE)
+# ===========================================================
+@main.route('/customer/delete', methods=['POST'])
+@login_required
+def delete_account():
+    # Segurança: Apenas clientes podem se auto-excluir por aqui
+    if current_user.perfil.nome_perfil != 'Cliente':
+        flash("Ação não permitida.", "danger")
+        return redirect(url_for('main.index'))
+
+    try:
+        db = SessionLocal()
+
+        usuario = db.query(Usuario).get(current_user.id)
+        
+
+        db.delete(usuario)
+        db.commit()
+        
+
+        logout_user()
+        flash("Sua conta foi excluída com sucesso. Sentiremos sua falta!", "info")
+        return redirect(url_for('main.index'))
+        
+    except Exception as e:
+        print("Erro ao excluir conta:", e)
+        flash("Ocorreu um erro ao tentar excluir sua conta.", "danger")
+        return redirect(url_for('main.customer_dashboard'))

@@ -2,50 +2,81 @@
 {% block title %}Minha Área{% endblock %}
 
 {% block content %}
-
-<h2 class="fw-bold mb-4">Olá, {{ current_user.nome }} 👋</h2>
-
-<div class="row g-4">
-
-    <!-- CARD: Meu Perfil -->
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title fw-bold">Meu Perfil</h5>
-                <p class="text-muted">Veja e atualize seus dados pessoais.</p>
-                <a href="{{ url_for('main.customer_profile') }}" class="btn btn-primary w-100">
-                    Acessar
-                </a>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4">Olá, {{ current_user.nome }} 👋</h2>
+    
+    <div class="row g-4">
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">Meu Perfil</h5>
+                    <p class="text-muted">Veja e atualize seus dados pessoais.</p>
+                    <a href="{{ url_for('main.customer_profile') }}" class="btn btn-primary w-100">
+                        Acessar
+                    </a>
+                </div>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">Minhas Reservas</h5>
+                    <p class="text-muted">Visualize seus veículos alugados.</p>
+                    <a href="{{ url_for('main.customer_rentals', user_id=user_id) }}" class="btn btn-primary w-100">
+                        Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">Alugar um Veículo</h5>
+                    <p class="text-muted">Veja todos os carros disponíveis.</p>
+                    <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning w-100">
+                        Ver veículos
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- CARD: Minhas Reservas -->
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title fw-bold">Minhas Reservas</h5>
-                <p class="text-muted">Visualize seus veículos alugados.</p>
-                <a href="{{ url_for('main.customer_rentals',user_id=user_id) }}" class="btn btn-primary  w-100">
-                    Acessar
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- CARD: Alugar Veículo -->
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title fw-bold">Alugar um Veículo</h5>
-                <p class="text-muted">Veja todos os carros disponíveis.</p>
-                <a href="{{ url_for('main.listar_veiculos') }}" class="btn btn-warning w-100">
-                    Ver veículos
-                </a>
-            </div>
-        </div>
+    <hr class="my-5 text-muted">
+    
+    <div class="text-end mb-4">
+        <small class="text-muted me-2">Deseja encerrar seu vínculo conosco?</small>
+        <button type="button" class="btn btn-link text-danger p-0 text-decoration-none fw-semibold" 
+                style="font-size: 0.9rem;" 
+                data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Excluir minha conta
+        </button>
     </div>
 
 </div>
 
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold">Tem certeza? 😢</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="mb-3">Ao excluir sua conta, todos os seus dados e histórico de reservas serão apagados permanentemente.</p>
+                <p class="fw-bold text-danger">Essa ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                
+                <form action="{{ url_for('main.delete_account') }}" method="POST">
+                    <button type="submit" class="btn btn-danger fw-bold">Sim, excluir minha conta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
