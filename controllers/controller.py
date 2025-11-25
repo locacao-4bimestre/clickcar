@@ -20,6 +20,8 @@ from io import BytesIO
 from flask import send_file
 from xhtml2pdf import pisa
 from sqlalchemy import func
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from flask import current_app
 
 database_url = os.environ.get('DATABASE_URL') or \
     'sqlite:///' + os.path.join(basedir, 'locacao.db')
@@ -1398,3 +1400,64 @@ def admin_dashboard():
                            meses_chart=meses_ordenados,
                            valores_chart=valores_mensais,
                            reservas=ultimas_reservas)
+
+# ===========================================================
+# RECUPERAÇÃO DE SENHA
+# ===========================================================
+
+@main.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = Usuario.query.filter_by(email=email).first()
+        
+        if user:
+            # 1. Gerar Token Seguro
+            s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+            token = s.dumps(user.email, salt='recover-key')
+
+            html_content = render_template('email/reset_link.html', token=token)
+
+            #Enviar Email
+            send_email_with_id(user.id, "Redefinir Senha - ClickCar", html_content)
+        
+        flash("Se esse e-mail estiver cadastrado, você receberá um link em instantes.", "info")
+        return redirect(url_for('main.login'))
+
+    return render_template('auth/forgot_password.html')
+
+
+@main.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    
+    try:
+        # Tenta decodificar o token (válido por 15 minutos = 900 segundos)
+        email = s.loads(token, salt='recover-key', max_age=900)
+    except SignatureExpired:
+        flash("O link de recuperação expirou. Tente novamente.", "warning")
+        return redirect(url_for('main.forgot_password'))
+    except Exception:
+        flash("Link inválido.", "danger")
+        return redirect(url_for('main.forgot_password'))
+
+    if request.method == 'POST':
+        senha = request.form.get('senha')
+        confirmar = request.form.get('confirmar_senha')
+
+        if senha != confirmar:
+            flash("As senhas não coincidem!", "warning")
+            return redirect(url_for('main.reset_password', token=token))
+        
+        if not validate_password(senha):
+            flash("A senha deve ter 8+ caracteres, letras, números e especial.", "warning")
+            return redirect(url_for('main.reset_password', token=token))
+
+        user = Usuario.query.filter_by(email=email).first_or_404()
+        user.senha_hash = generate_password_hash(senha)
+        db.session.commit()
+
+        flash("Sua senha foi alterada com sucesso! Faça login.", "success")
+        return redirect(url_for('main.login'))
+
+    return render_template('auth/reset_password.html')

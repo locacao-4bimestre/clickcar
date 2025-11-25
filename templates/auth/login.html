@@ -9,7 +9,13 @@
   <div class="mb-3">
     <label>Senha</label>
     <input class="form-control" name="senha" type="password" required>
-  </div>
+    
+    <div class="text-end mt-1">
+        <a href="{{ url_for('main.forgot_password') }}" class="text-decoration-none small text-muted">
+            Esqueci minha senha
+        </a>
+    </div>
+</div>
   <button class="btn btn-primary" type="submit">Entrar</button>
 </form>
 {% endblock %}
